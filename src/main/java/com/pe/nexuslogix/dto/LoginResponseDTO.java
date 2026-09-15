@@ -14,6 +14,16 @@ public class LoginResponseDTO {
     private String token;
     private UserResponseDTO usuario;
 
+    public LoginResponseDTO() {
+    }
+
+    public LoginResponseDTO(boolean success, String mensaje, String token, UserResponseDTO usuario) {
+        this.success = success;
+        this.mensaje = mensaje;
+        this.token = token;
+        this.usuario = usuario;
+    }
+
     public boolean isSuccess() {
         return success;
     }
