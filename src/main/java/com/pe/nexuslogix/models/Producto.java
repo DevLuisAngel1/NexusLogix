@@ -21,7 +21,7 @@ public class Producto {
 
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column (nullable = false, unique = true, length = 50)
     private String codigoSku;
@@ -40,10 +40,10 @@ public class Producto {
     private double precioUnitario;
 
     @Column (nullable = false)
-    private double stockActual = 0;
+    private int stockActual = 0;
 
     @Column (nullable = false)
-    private double stockMinimo = 0;
+    private int stockMinimo = 0;
 
     @Column (length = 50)
     private double ubicacionPasillo;
@@ -65,7 +65,7 @@ public class Producto {
     public Producto() { 
     }
 
-    public Producto(long id, String codigoSku, String nombre, String descripcion, double unidadMedida, double precioUnitario, double stockActual, double stockMinimo, double ubicacionPasillo, double pesokg, Boolean estado, Categoria categoria) {
+    public Producto(Long id, String codigoSku, String nombre, String descripcion, double unidadMedida, double precioUnitario, int stockActual, int stockMinimo, double ubicacionPasillo, double pesokg, Boolean estado, Categoria categoria) {
         this.id = id;
         this.codigoSku = codigoSku;
         this.nombre = nombre;
@@ -81,7 +81,7 @@ public class Producto {
     }
 
     //getters y setters
-    public long getId() {
+    public Long getId() {
         return id;
     }
     public String getCodigoSku() {
@@ -114,16 +114,16 @@ public class Producto {
     public void setPrecioUnitario(double precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
-    public double getStockActual() {
+    public int getStockActual() {
         return stockActual;
     }
-    public void setStockActual(double stockActual) {
+    public void setStockActual(int stockActual) {
         this.stockActual = stockActual;
     }
-    public double getStockMinimo() {
+    public int getStockMinimo() {
         return stockMinimo;
     }
-    public void setStockMinimo(double stockMinimo) {
+    public void setStockMinimo(int stockMinimo) {
         this.stockMinimo = stockMinimo;
     }
     public double getUbicacionPasillo() {

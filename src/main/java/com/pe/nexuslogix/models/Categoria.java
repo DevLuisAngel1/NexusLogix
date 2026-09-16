@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 public class Categoria {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 100)
     private String nombre;
@@ -35,7 +35,7 @@ public class Categoria {
     public Categoria() {
     }
 
-    public Categoria(long id, String nombre, String descripcion, Boolean estado) {
+    public Categoria(Long id, String nombre, String descripcion, Boolean estado) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -43,7 +43,7 @@ public class Categoria {
     }
 
     //getters y setters
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

@@ -31,13 +31,13 @@ public class MovimientoInventario {
     private TipoMovimiento tipoMovimiento;
 
     @Column (nullable = false)
-    private Integer cantidad;
+    private int cantidad;
     
     @Column (nullable = false)
-    private Integer stockAnterior;
+    private int stockAnterior;
 
     @Column (nullable = false)
-    private Integer stockPosterior;
+    private int stockPosterior;
 
     @Column (length = 100)
     private String referenciaDocumento;
@@ -52,7 +52,7 @@ public class MovimientoInventario {
     public MovimientoInventario() {
     }
 
-    public MovimientoInventario(Producto producto, TipoMovimiento tipoMovimiento, Integer cantidad, Integer stockAnterior, Integer stockPosterior, String referenciaDocumento, String motivo, LocalDateTime fecha) {
+    public MovimientoInventario(Producto producto, TipoMovimiento tipoMovimiento, int cantidad, int stockAnterior, int stockPosterior, String referenciaDocumento, String motivo, LocalDateTime fecha) {
         this.producto = producto;
         this.tipoMovimiento = tipoMovimiento;
         this.cantidad = cantidad;
@@ -90,7 +90,7 @@ public class MovimientoInventario {
         return cantidad;
     }
 
-    public void setCantidad(Integer cantidad) {
+    public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
 
@@ -98,7 +98,7 @@ public class MovimientoInventario {
         return stockAnterior;
     }
 
-    public void setStockAnterior(Integer stockAnterior) {
+    public void setStockAnterior(int stockAnterior) {
         this.stockAnterior = stockAnterior;
     }
 
@@ -106,7 +106,7 @@ public class MovimientoInventario {
         return stockPosterior;
     }
 
-    public void setStockPosterior(Integer stockPosterior) {
+    public void setStockPosterior(int stockPosterior) {
         this.stockPosterior = stockPosterior;
     }
 
