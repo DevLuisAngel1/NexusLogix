@@ -184,6 +184,5 @@ public class InventarioServiceImpl implements InventarioService {
             .orElseThrow(() -> new IllegalArgumentException(
                     "No existe el producto con ID: " + productoId
             ));
-}
-    
+    }   
 }
