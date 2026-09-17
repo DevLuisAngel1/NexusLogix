@@ -45,6 +45,9 @@ public class MovimientoInventario {
     @Column (length = 500)
     private String motivo;
 
+    @Column (name = "usuario_id", nullable = false)
+    private Long usuarioId = 1L;
+
     @Column (nullable = false)
     private LocalDateTime fecha;
 
@@ -53,6 +56,10 @@ public class MovimientoInventario {
     }
 
     public MovimientoInventario(Producto producto, TipoMovimiento tipoMovimiento, int cantidad, int stockAnterior, int stockPosterior, String referenciaDocumento, String motivo, LocalDateTime fecha) {
+        this(producto, tipoMovimiento, cantidad, stockAnterior, stockPosterior, referenciaDocumento, motivo, fecha, 1L);
+    }
+
+    public MovimientoInventario(Producto producto, TipoMovimiento tipoMovimiento, int cantidad, int stockAnterior, int stockPosterior, String referenciaDocumento, String motivo, LocalDateTime fecha, Long usuarioId) {
         this.producto = producto;
         this.tipoMovimiento = tipoMovimiento;
         this.cantidad = cantidad;
@@ -61,6 +68,7 @@ public class MovimientoInventario {
         this.referenciaDocumento = referenciaDocumento;
         this.motivo = motivo;
         this.fecha = fecha;
+        this.usuarioId = usuarioId != null ? usuarioId : 1L;
     }
 
     // Getters and Setters
@@ -132,6 +140,14 @@ public class MovimientoInventario {
 
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId != null ? usuarioId : 1L;
     }
 }
 

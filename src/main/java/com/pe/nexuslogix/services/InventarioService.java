@@ -14,6 +14,15 @@ public interface InventarioService {
             String motivo
     );
 
+    MovimientoInventario registrarMovimiento(
+            Long productoId,
+            TipoMovimiento tipoMovimiento,
+            Integer cantidad,
+            String referenciaDocumento,
+            String motivo,
+            Long usuarioId
+    );
+
     List<MovimientoInventario> obtenerKardex(Long productoId);
 
     List<MovimientoInventario> obtenerKardexAscendente(Long productoId);

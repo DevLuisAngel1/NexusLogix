@@ -22,6 +22,11 @@ public class PedidoController {
     @Autowired
     private DetallePedidoRepository detallePedidoRepository;
 
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper =
+            com.fasterxml.jackson.databind.json.JsonMapper.builder()
+                    .findAndAddModules()
+                    .build();
+
     @GetMapping
     public List<Pedido> listarPedidos(@RequestParam(required = false) String estado) {
         if (estado != null && !estado.isEmpty()) {
@@ -46,13 +51,15 @@ public class PedidoController {
 
     @PostMapping
     public Pedido crearPedido(@RequestBody Map<String, Object> payload) {
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        Pedido pedido = mapper.convertValue(payload.get("pedido"), Pedido.class);
+        Pedido pedido = objectMapper.convertValue(payload.get("pedido"), Pedido.class);
+        if (pedido.getUsuario() == null) {
+            pedido.setUsuario(1L);
+        }
         
         List<?> rawDetalles = (List<?>) payload.get("detalles");
-        List<DetallePedido> detalles = rawDetalles.stream()
-                .map(item -> mapper.convertValue(item, DetallePedido.class))
-                .toList();
+        List<DetallePedido> detalles = (rawDetalles != null) ? rawDetalles.stream()
+                .map(item -> objectMapper.convertValue(item, DetallePedido.class))
+                .toList() : List.of();
 
         pedido.setFechaPedido(LocalDateTime.now());
         pedido.setEstado("PENDIENTE");
@@ -80,11 +87,15 @@ public class PedidoController {
         return pedidoRepository.save(pedidoGuardado);
     }
 
-    @PatchMapping("/{id}/estado")
+    @RequestMapping(value = "/{id}/estado", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<Pedido> actualizarEstado(@PathVariable Long id, @RequestBody Map<String, String> body) {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-        pedido.setEstado(body.get("estado"));
+        String nuevoEstado = body.get("estado");
+        if ("PREPARADO".equalsIgnoreCase(nuevoEstado)) {
+            nuevoEstado = "EN_PREPARACION";
+        }
+        pedido.setEstado(nuevoEstado);
         return ResponseEntity.ok(pedidoRepository.save(pedido));
     }
 }

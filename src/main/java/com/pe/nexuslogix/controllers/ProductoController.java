@@ -36,15 +36,24 @@ public class ProductoController {
         );
     }
 
-    // GET /api/productos/{id}
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> buscarPorId(
-            @PathVariable Long id
+    // GET /api/productos/stock-bajo & /api/productos/alertas-stock
+    @GetMapping({"/stock-bajo", "/alertas-stock"})
+    public ResponseEntity<List<Producto>> listarProductosConStockBajo() {
+
+        return ResponseEntity.ok(
+                productoService.listarProductosConStockBajo()
+        );
+    }
+
+    // GET /api/productos/buscar?nombre=casco
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Producto>> buscarPorNombre(
+            @RequestParam String nombre
     ) {
 
-        return productoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(
+                productoService.buscarPorNombre(nombre)
+        );
     }
 
     // GET /api/productos/sku/{sku}
@@ -69,24 +78,15 @@ public class ProductoController {
         );
     }
 
-    // GET /api/productos/alertas-stock
-    @GetMapping("/alertas-stock")
-    public ResponseEntity<List<Producto>> listarProductosConStockBajo() {
-
-        return ResponseEntity.ok(
-                productoService.listarProductosConStockBajo()
-        );
-    }
-
-    // GET /api/productos/buscar?nombre=casco
-    @GetMapping("/buscar")
-    public ResponseEntity<List<Producto>> buscarPorNombre(
-            @RequestParam String nombre
+    // GET /api/productos/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> buscarPorId(
+            @PathVariable Long id
     ) {
 
-        return ResponseEntity.ok(
-                productoService.buscarPorNombre(nombre)
-        );
+        return productoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // POST /api/productos

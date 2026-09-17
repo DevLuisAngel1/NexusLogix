@@ -37,7 +37,8 @@ public class InventarioController {
                             request.getTipoMovimiento(),
                             request.getCantidad(),
                             request.getReferenciaDocumento(),
-                            request.getMotivo()
+                            request.getMotivo(),
+                            request.getUsuarioId() != null ? request.getUsuarioId() : 1L
                     );
 
             return ResponseEntity
@@ -134,6 +135,16 @@ public class InventarioController {
         private String referenciaDocumento;
 
         private String motivo;
+
+        private Long usuarioId;
+
+        public Long getUsuarioId() {
+            return usuarioId;
+        }
+
+        public void setUsuarioId(Long usuarioId) {
+            this.usuarioId = usuarioId;
+        }
 
         public Long getProductoId() {
             return productoId;

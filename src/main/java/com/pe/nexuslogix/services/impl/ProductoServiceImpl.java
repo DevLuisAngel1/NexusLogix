@@ -102,12 +102,20 @@ public class ProductoServiceImpl implements ProductoService {
 
         producto.setCategoria(categoria);
 
-        if (producto.getStockActual() == 0) {
+        if (producto.getStockActual() == null) {
             producto.setStockActual(0);
         }
 
-        if (producto.getStockMinimo() == 0) {
+        if (producto.getStockMinimo() == null) {
             producto.setStockMinimo(0);
+        }
+
+        if (producto.getPrecioUnitario() == null) {
+            producto.setPrecioUnitario(0.0);
+        }
+
+        if (producto.getPesokg() == null) {
+            producto.setPesokg(0.0);
         }
 
         if (producto.getEstado() == null) {
@@ -158,10 +166,16 @@ public class ProductoServiceImpl implements ProductoService {
         productoExistente.setNombre(producto.getNombre());
         productoExistente.setDescripcion(producto.getDescripcion());
         productoExistente.setUnidadMedida(producto.getUnidadMedida());
-        productoExistente.setPrecioUnitario(producto.getPrecioUnitario());
-        productoExistente.setStockMinimo(producto.getStockMinimo());
+        if (producto.getPrecioUnitario() != null) {
+            productoExistente.setPrecioUnitario(producto.getPrecioUnitario());
+        }
+        if (producto.getStockMinimo() != null) {
+            productoExistente.setStockMinimo(producto.getStockMinimo());
+        }
         productoExistente.setUbicacionPasillo(producto.getUbicacionPasillo());
-        productoExistente.setPesokg(producto.getPesokg());
+        if (producto.getPesokg() != null) {
+            productoExistente.setPesokg(producto.getPesokg());
+        }
         productoExistente.setCategoria(categoria);
 
         /*

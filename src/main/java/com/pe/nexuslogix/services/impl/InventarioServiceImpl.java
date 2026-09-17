@@ -33,6 +33,13 @@ public class InventarioServiceImpl implements InventarioService {
     @Transactional 
     public MovimientoInventario registrarMovimiento(Long productoId, TipoMovimiento tipoMovimiento, Integer cantidad,
             String referenciaDocumento, String motivo) {
+        return registrarMovimiento(productoId, tipoMovimiento, cantidad, referenciaDocumento, motivo, 1L);
+    }
+
+    @Override
+    @Transactional 
+    public MovimientoInventario registrarMovimiento(Long productoId, TipoMovimiento tipoMovimiento, Integer cantidad,
+            String referenciaDocumento, String motivo, Long usuarioId) {
         // 1. Validar cantidad
         if (cantidad == null || cantidad <= 0) {
             throw new IllegalArgumentException(
@@ -130,7 +137,8 @@ public class InventarioServiceImpl implements InventarioService {
                 stockPosterior,
                 referenciaDocumento,
                 motivo,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                usuarioId != null ? usuarioId : 1L
         );
 
         // 9. Guardar movimiento

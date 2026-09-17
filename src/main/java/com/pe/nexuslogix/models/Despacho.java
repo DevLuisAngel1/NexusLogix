@@ -16,7 +16,16 @@ public class Despacho {
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
-    private Long operador;
+    @Column(name = "operador_id", nullable = false)
+    private Long operador = 1L;
+
+    public void setOperadorId(Long operadorId) {
+        if (operadorId != null) this.operador = operadorId;
+    }
+
+    public Long getOperadorId() {
+        return this.operador;
+    }
     
     @Column(unique = true, nullable = false)
     private String guiaRemision;

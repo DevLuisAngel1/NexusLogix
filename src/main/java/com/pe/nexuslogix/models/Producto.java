@@ -38,19 +38,19 @@ public class Producto {
     private String unidadMedida;
 
     @Column (nullable = false)
-    private double precioUnitario;
+    private Double precioUnitario = 0.0;
 
     @Column (nullable = false)
-    private int stockActual = 0;
+    private Integer stockActual = 0;
 
     @Column (nullable = false)
-    private int stockMinimo = 0;
+    private Integer stockMinimo = 0;
 
     @Column (length = 50)
     private String ubicacionPasillo;
 
     @Column (name = "peso_kg")
-    private double pesokg;
+    private Double pesokg = 0.0;
 
     @Convert(converter = ProductoEstadoConverter.class)
     @Column (nullable = false)
@@ -68,7 +68,7 @@ public class Producto {
     public Producto() { 
     }
 
-    public Producto(Long id, String codigoSku, String nombre, String descripcion, String unidadMedida, double precioUnitario, int stockActual, int stockMinimo, String ubicacionPasillo, double pesokg, Boolean estado, Categoria categoria) {
+    public Producto(Long id, String codigoSku, String nombre, String descripcion, String unidadMedida, Double precioUnitario, Integer stockActual, Integer stockMinimo, String ubicacionPasillo, Double pesokg, Boolean estado, Categoria categoria) {
         this.id = id;
         this.codigoSku = codigoSku;
         this.nombre = nombre;
@@ -111,22 +111,22 @@ public class Producto {
     public void setUnidadMedida(String unidadMedida) {
         this.unidadMedida = unidadMedida;
     }
-    public double getPrecioUnitario() {
-        return precioUnitario;
+    public Double getPrecioUnitario() {
+        return precioUnitario != null ? precioUnitario : 0.0;
     }
-    public void setPrecioUnitario(double precioUnitario) {
+    public void setPrecioUnitario(Double precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
-    public int getStockActual() {
-        return stockActual;
+    public Integer getStockActual() {
+        return stockActual != null ? stockActual : 0;
     }
-    public void setStockActual(int stockActual) {
+    public void setStockActual(Integer stockActual) {
         this.stockActual = stockActual;
     }
-    public int getStockMinimo() {
-        return stockMinimo;
+    public Integer getStockMinimo() {
+        return stockMinimo != null ? stockMinimo : 0;
     }
-    public void setStockMinimo(int stockMinimo) {
+    public void setStockMinimo(Integer stockMinimo) {
         this.stockMinimo = stockMinimo;
     }
     public String getUbicacionPasillo() {
@@ -135,10 +135,10 @@ public class Producto {
     public void setUbicacionPasillo(String ubicacionPasillo) {
         this.ubicacionPasillo = ubicacionPasillo;
     }
-    public double getPesokg() {
-        return pesokg;
+    public Double getPesokg() {
+        return pesokg != null ? pesokg : 0.0;
     }
-    public void setPesokg(double pesokg) {
+    public void setPesokg(Double pesokg) {
         this.pesokg = pesokg;
     }
     public Boolean getEstado() {

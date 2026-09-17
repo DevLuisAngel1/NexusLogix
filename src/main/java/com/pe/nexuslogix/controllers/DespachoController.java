@@ -15,10 +15,23 @@ public class DespachoController {
     @Autowired
     private DespachoRepository despachoRepository;
 
+    @Autowired
+    private com.pe.nexuslogix.repositories.PedidoRepository pedidoRepository;
+
     @PostMapping
     public Despacho generarDespacho(@RequestBody Despacho despacho) {
+        if (despacho.getOperador() == null) {
+            despacho.setOperador(1L);
+        }
+        if (despacho.getPedido() != null && despacho.getPedido().getId() != null) {
+            com.pe.nexuslogix.models.Pedido pedido = pedidoRepository.findById(despacho.getPedido().getId())
+                    .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + despacho.getPedido().getId()));
+            despacho.setPedido(pedido);
+        }
         despacho.setFechaSalida(LocalDateTime.now());
-        despacho.setEstado("EN_TRANSITO");
+        if (despacho.getEstado() == null || "EN_TRANSITO".equalsIgnoreCase(despacho.getEstado())) {
+            despacho.setEstado("EN_RUTA");
+        }
         return despachoRepository.save(despacho);
     }
 

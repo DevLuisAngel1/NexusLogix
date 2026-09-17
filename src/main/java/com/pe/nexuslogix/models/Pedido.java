@@ -19,7 +19,17 @@ public class Pedido {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    private Long usuario;
+    @Column(name = "usuario_solicitante_id", nullable = false)
+    private Long usuario = 1L;
+
+    public void setUsuarioId(Long usuarioId) {
+        if (usuarioId != null) this.usuario = usuarioId;
+    }
+
+    public void setUsuarioSolicitanteId(Long usuarioSolicitanteId) {
+        if (usuarioSolicitanteId != null) this.usuario = usuarioSolicitanteId;
+    }
+    
     private LocalDateTime fechaPedido;
 
     private Double subtotal;
