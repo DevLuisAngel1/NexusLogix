@@ -1,0 +1,201 @@
+﻿{
+	"info": {
+		"_postman_id": "b3815c32-2d18-4712-9c44-77e8a9140f09",
+		"name": "NexusLogix WMS - API Collection",
+		"description": "Colección completa para pruebas de integración y seguridad del backend NexusLogix WMS en Spring Boot.\n\nContiene:\n- Health Check del microservicio\n- Login para los 4 roles empresariales\n- Endpoint protegido con validación de Token JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Public - Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Verifica el estado operativo del microservicio."
+			},
+			"response": []
+		},
+		{
+			"name": "02. Auth - Login Administrador",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.token) {",
+							"    pm.collectionVariables.set(\"token\", jsonData.token);",
+							"    console.log(\"Token JWT actualizado:\", jsonData.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Inicia sesión como Administrador y guarda el token JWT automáticamente en la variable de colección 'token'."
+			},
+			"response": []
+		},
+		{
+			"name": "03. Auth - Login Jefe Almacen",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"almacen.lead\",\n    \"password\": \"almacen123password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Autenticación para Jefe de Almacén (ROLE_JEFE_ALMACEN)."
+			},
+			"response": []
+		},
+		{
+			"name": "04. Auth - Login Operador Despacho",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"despacho.op\",\n    \"password\": \"despacho123password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Autenticación para Operador de Despacho (ROLE_OPERADOR_DESPACHO)."
+			},
+			"response": []
+		},
+		{
+			"name": "05. Auth - Login Cliente Comercial B2B",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"cliente.minero\",\n    \"password\": \"minero123password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Autenticación para Cliente Comercial B2B (ROLE_CLIENTE_COMERCIAL)."
+			},
+			"response": []
+		},
+		{
+			"name": "06. Protected - Listar Usuarios (Requiere JWT)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"users"
+					]
+				},
+				"description": "Endpoint protegido. Requiere el header Authorization: Bearer <token> obtenido en el login."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
