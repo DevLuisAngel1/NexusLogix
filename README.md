@@ -15,33 +15,6 @@ Desarrollado con **Java 17+**, **Spring Boot 3.3.4**, **Spring Security 6**, **J
 
 ---
 
-## Requisitos Previos
-
-- **Java JDK 17 o superior** (Detectado JDK 26)
-- **Apache Maven 3.8+** (Instalado en el sistema)
-- **MySQL Server 8.0** (Base de datos: `nexuslogix_wms`)
-
----
-
-## Compilación y Ejecución
-
-1. **Compilar el proyecto con Maven:**
-   ```bash
-   mvn clean compile
-   ```
-
-2. **Empaquetar la aplicación en archivo JAR:**
-   ```bash
-   mvn clean package -DskipTests
-   ```
-
-3. **Ejecutar el servidor Spring Boot:**
-   ```bash
-   java -jar target/nexuslogix-wms-backend-1.0.0.jar
-   ```
-
-El servidor quedará activo en `http://localhost:3000`.
-
 ---
 
 ## Endpoints y Flujo de Seguridad JWT
