@@ -1,4 +1,4 @@
-﻿package com.pe.nexuslogix.wms.controllers;
+﻿package com.pe.nexuslogix.controllers;
 
 import com.pe.nexuslogix.wms.models.Cliente;
 import com.pe.nexuslogix.wms.repositories.ClienteRepository;

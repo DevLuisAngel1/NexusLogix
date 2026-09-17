@@ -1,4 +1,4 @@
-﻿package com.pe.nexuslogix.wms.repositories;
+﻿package com.pe.nexuslogix.repositories;
 
 import com.pe.nexuslogix.wms.models.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
