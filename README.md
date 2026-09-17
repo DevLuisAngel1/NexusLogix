@@ -9,9 +9,9 @@ Desarrollado con **Java 17+**, **Spring Boot 3.3.4**, **Spring Security 6**, **J
 
 | Integrante | Rol | Módulo Asignado | Rama Git Asignada | Estado |
 | :--- | :--- | :--- | :--- | :--- |
-| **Integrante 1 (Lead)** | Arquitectura Backend & Auth | Autenticación, Usuarios y Seguridad JWT (`/api/auth`) | `feature/auth-users` |  Por integrar |
-| **Integrante 2** | Desarrollador | Catálogo e Inventario (`/api/products`) | `feature/inventory-catalog` |  Pendiente |
-| **Integrante 3** | Desarrollador | Pedidos, Portal B2B y Despacho (`/api/orders`) | `feature/orders-dispatch` |  Pendiente |
+| **Integrante 1 (Lead)** | Arquitectura Backend & Auth | Autenticación, Usuarios y Seguridad JWT (`/api/auth`) | `feature/auth-users` |  Integrado |
+| **Integrante 2** | Desarrollador | Catálogo e Inventario (`/api/products`) | `feature/inventory-catalog` |  Integrado |
+| **Integrante 3** | Desarrollador | Pedidos, Portal B2B y Despacho (`/api/orders`) | `feature/orders-dispatch` |  Integrado |
 
 ---
 
