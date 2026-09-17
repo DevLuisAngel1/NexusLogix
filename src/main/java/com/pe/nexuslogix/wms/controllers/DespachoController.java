@@ -30,7 +30,7 @@ public class DespachoController {
     }
 
     @PutMapping("/{id}/entregar")
-    public ResponseEntity<Despacho> marcarEntregado(@PathVariable Long id, @RequestBody Despacho datosEntrega) {
+    public ResponseEntity<Despacho> marcarEntregado(@PathVariable Long id, @Requesgit tBody Despacho datosEntrega) {
         Despacho despacho = despachoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despacho no encontrado"));
         
