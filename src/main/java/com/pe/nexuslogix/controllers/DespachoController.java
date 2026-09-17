@@ -1,7 +1,7 @@
-﻿package com.pe.nexuslogix.controllers;
+package com.pe.nexuslogix.controllers;
 
-import com.pe.nexuslogix.wms.models.Despacho;
-import com.pe.nexuslogix.wms.repositories.DespachoRepository;
+import com.pe.nexuslogix.models.Despacho;
+import com.pe.nexuslogix.repositories.DespachoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ public class DespachoController {
     }
 
     @PutMapping("/{id}/entregar")
-    public ResponseEntity<Despacho> marcarEntregado(@PathVariable Long id, @Requesgit tBody Despacho datosEntrega) {
+    public ResponseEntity<Despacho> marcarEntregado(@PathVariable Long id, @RequestBody Despacho datosEntrega) {
         Despacho despacho = despachoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despacho no encontrado"));
         

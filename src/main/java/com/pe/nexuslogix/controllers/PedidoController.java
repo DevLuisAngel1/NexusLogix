@@ -1,9 +1,9 @@
-﻿package com.pe.nexuslogix.controllers;
+package com.pe.nexuslogix.controllers;
 
-import com.pe.nexuslogix.wms.models.DetallePedido;
-import com.pe.nexuslogix.wms.models.Pedido;
-import com.pe.nexuslogix.wms.repositories.DetallePedidoRepository;
-import com.pe.nexuslogix.wms.repositories.PedidoRepository;
+import com.pe.nexuslogix.models.DetallePedido;
+import com.pe.nexuslogix.models.Pedido;
+import com.pe.nexuslogix.repositories.DetallePedidoRepository;
+import com.pe.nexuslogix.repositories.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

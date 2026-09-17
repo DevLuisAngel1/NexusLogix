@@ -1,4 +1,4 @@
-﻿package com.pe.nexuslogix.models;
+package com.pe.nexuslogix.models;
 
 import jakarta.persistence.*;
 import lombok.Data;

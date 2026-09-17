@@ -1,6 +1,6 @@
-﻿package com.pe.nexuslogix.repositories;
+package com.pe.nexuslogix.repositories;
 
-import com.pe.nexuslogix.wms.models.Cliente;
+import com.pe.nexuslogix.models.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
