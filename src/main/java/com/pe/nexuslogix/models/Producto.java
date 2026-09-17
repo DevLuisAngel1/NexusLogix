@@ -3,7 +3,9 @@ package com.pe.nexuslogix.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -33,10 +35,9 @@ public class Producto {
     private String descripcion;
 
     @Column (nullable = false, length = 30)
-    private double unidadMedida;
+    private String unidadMedida;
 
-    
-    @Column (nullable = false, precision = 10, scale = 2)
+    @Column (nullable = false)
     private double precioUnitario;
 
     @Column (nullable = false)
@@ -46,18 +47,20 @@ public class Producto {
     private int stockMinimo = 0;
 
     @Column (length = 50)
-    private double ubicacionPasillo;
+    private String ubicacionPasillo;
 
-    @Column (precision = 10, scale = 3)
+    @Column (name = "peso_kg")
     private double pesokg;
 
+    @Convert(converter = ProductoEstadoConverter.class)
     @Column (nullable = false)
     private Boolean estado = true;
 
-    @ManyToOne (fetch = FetchType.LAZY, optional = false)
+    @ManyToOne (optional = false)
     @JoinColumn (name = "categoria_id", nullable = false)
     private Categoria categoria;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "producto")
     private List<MovimientoInventario> movimientos = new ArrayList<>();
 
@@ -65,7 +68,7 @@ public class Producto {
     public Producto() { 
     }
 
-    public Producto(Long id, String codigoSku, String nombre, String descripcion, double unidadMedida, double precioUnitario, int stockActual, int stockMinimo, double ubicacionPasillo, double pesokg, Boolean estado, Categoria categoria) {
+    public Producto(Long id, String codigoSku, String nombre, String descripcion, String unidadMedida, double precioUnitario, int stockActual, int stockMinimo, String ubicacionPasillo, double pesokg, Boolean estado, Categoria categoria) {
         this.id = id;
         this.codigoSku = codigoSku;
         this.nombre = nombre;
@@ -102,10 +105,10 @@ public class Producto {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-    public double getUnidadMedida() {
+    public String getUnidadMedida() {
         return unidadMedida;
     }
-    public void setUnidadMedida(double unidadMedida) {
+    public void setUnidadMedida(String unidadMedida) {
         this.unidadMedida = unidadMedida;
     }
     public double getPrecioUnitario() {
@@ -126,10 +129,10 @@ public class Producto {
     public void setStockMinimo(int stockMinimo) {
         this.stockMinimo = stockMinimo;
     }
-    public double getUbicacionPasillo() {
+    public String getUbicacionPasillo() {
         return ubicacionPasillo;
     }
-    public void setUbicacionPasillo(double ubicacionPasillo) {
+    public void setUbicacionPasillo(String ubicacionPasillo) {
         this.ubicacionPasillo = ubicacionPasillo;
     }
     public double getPesokg() {

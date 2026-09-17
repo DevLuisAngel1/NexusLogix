@@ -15,14 +15,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity 
-@Table (name = "movimiento_inventario")
+@Table (name = "movimientos_inventario")
 public class MovimientoInventario {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne (fetch = FetchType.LAZY, optional = false)
+    @ManyToOne (optional = false)
     @JoinColumn (name = "producto_id", nullable = false)
     private Producto producto;
 

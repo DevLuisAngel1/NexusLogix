@@ -47,7 +47,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Producto> buscarPorSku(String sku) {
-        return productoRepository.findBySkuIgnoreCase(sku);
+        return productoRepository.findByCodigoSkuIgnoreCase(sku);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Transactional
     public Producto guardar(Producto producto) {
 
-        if (productoRepository.existsBySkuIgnoreCase(producto.getCodigoSku())) {
+        if (productoRepository.existsByCodigoSkuIgnoreCase(producto.getCodigoSku())) {
             throw new IllegalArgumentException(
                     "Ya existe un producto con el SKU: "
                     + producto.getCodigoSku()
@@ -127,7 +127,7 @@ public class ProductoServiceImpl implements ProductoService {
                 ));
 
         Optional<Producto> productoConMismoSku =
-                productoRepository.findBySkuIgnoreCase(
+                productoRepository.findByCodigoSkuIgnoreCase(
                         producto.getCodigoSku()
                 );
 
@@ -198,6 +198,6 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public boolean existePorSku(String sku) {
-        return productoRepository.existsBySkuIgnoreCase(sku);
+        return productoRepository.existsByCodigoSkuIgnoreCase(sku);
     }
 }

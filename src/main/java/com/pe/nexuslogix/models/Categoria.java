@@ -3,7 +3,9 @@ package com.pe.nexuslogix.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,9 +27,11 @@ public class Categoria {
     @Column(length = 255)
     private String descripcion;
 
+    @Convert(converter = CategoriaEstadoConverter.class)
     @Column (nullable = false)
     private Boolean estado = true;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "categoria")
     private List<Producto> productos = new ArrayList<>();
 
