@@ -18,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
         User user = userRepository.findByUsernameOrEmail(identifier)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con credencial: " + identifier));
