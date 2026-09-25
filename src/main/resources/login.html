@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NexusLogix - Iniciar sesión</title>
+
+    <link rel="stylesheet" href="/css/styleLogin.css">
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <div class="logo">
+            <div class="logo-icon">N</div>
+            <h1>Nexus<span>Logix</span></h1>
+        </div>
+
+        <div class="login-header">
+            <h2>Bienvenido</h2>
+            <p>Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <form id="loginForm">
+
+            <div class="input-group">
+                <label for="correo">Correo electrónico</label>
+
+                <input
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    placeholder="usuario@ejemplo.com"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+
+                <div class="password-container">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Ingresa tu contraseña"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="toggle-password"
+                    >
+                        👁
+                    </button>
+
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <button type="submit" id="loginButton" class="login-button">
+                <span id="buttonText">Iniciar sesión</span>
+                <span id="loader" class="loader"></span>
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="/js/spript.js"></script>
+
+</body>
+</html>
