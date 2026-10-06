@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
@@ -8,105 +8,90 @@ import {
   ShoppingCart,
   Truck,
   BarChart3,
-  LogOut,
-  Boxes,
-  ShieldCheck,
-  UserCheck
+  Building2,
+  User,
+  LogOut
 } from 'lucide-react';
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Usuarios', path: '/usuarios', icon: Users, adminOnly: true },
+    { name: 'Usuarios', path: '/usuarios', icon: Users },
     { name: 'Productos', path: '/productos', icon: Package },
     { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart },
+    { name: 'Portal B2B', path: '/portal-b2b', icon: Building2 },
     { name: 'Despachos', path: '/despachos', icon: Truck },
     { name: 'Reportes', path: '/reportes', icon: BarChart3 },
+    { name: 'Perfil', path: '/perfil', icon: User },
   ];
 
+  const getInitial = (name) => {
+    return (name && name.charAt(0)) ? name.charAt(0).toUpperCase() : 'A';
+  };
+
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 h-screen sticky top-0 border-r border-slate-800">
+    <aside className="w-64 bg-[#0C1E36] text-white flex flex-col shrink-0 min-h-screen border-r border-[#152E50] select-none">
       {/* Brand Header */}
-      <div>
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-            <Boxes className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-              Nexus<span className="text-blue-500">Logix</span>
-            </h1>
-            <p className="text-[11px] text-slate-400 font-medium">Gestión logística WMS</p>
-          </div>
+      <div className="h-16 flex items-center px-6 gap-3 border-b border-[#152E50]/70">
+        <div className="w-9 h-9 rounded-lg bg-[#1D68EC] flex items-center justify-center shadow-lg shadow-[#1D68EC]/30">
+          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
         </div>
-
-        {/* Navigation Menu */}
-        <nav className="p-4 space-y-1.5">
-          <p className="px-3 text-[11px] font-semibold tracking-wider text-slate-300 uppercase mb-2">
-            Menú Principal
-          </p>
-
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`
-                }
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span>{item.name}</span>
-                {item.adminOnly && user?.role === 'ADMIN' && (
-                  <span className="ml-auto text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-semibold border border-purple-500/30">
-                    Admin
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
+        <div>
+          <span className="text-lg font-bold tracking-tight text-white block leading-tight">NexusLogix</span>
+          <span className="text-[10px] text-cyan-400 tracking-wider font-semibold uppercase">WMS Enterprise</span>
+        </div>
       </div>
 
-      {/* User Card / Footer */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950/40">
-        <div className="flex items-center justify-between">
-          <NavLink
-            to="/perfil"
-            className="flex items-center gap-3 group min-w-0 flex-1 hover:opacity-90 transition-opacity"
-            title="Ver mi perfil"
-          >
-            <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-inner">
-              {user?.nombre ? user.nombre.charAt(0).toUpperCase() : 'U'}
+      {/* Navigation Menu */}
+      <nav className="flex-1 py-5 px-3.5 space-y-1.5 overflow-y-auto">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-[#1D68EC] text-white shadow-md shadow-[#1D68EC]/25'
+                    : 'text-slate-400 hover:text-white hover:bg-[#152E50]/70'
+                }`
+              }
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span>{item.name}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* User Profile in Sidebar (Matching Mockup screens 2-11) */}
+      <div className="p-3.5 border-t border-[#152E50]/70 bg-[#0A1A2E]">
+        <div className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-[#152E50]/50 transition-colors">
+          <NavLink to="/perfil" className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 rounded-full bg-[#1D68EC] border-2 border-[#152E50] flex items-center justify-center text-white font-bold text-sm shrink-0">
+              {getInitial(user?.nombre || user?.username)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate group-hover:text-blue-400 transition-colors">
-                {user?.nombre ? `${user.nombre} ${user.apellido || ''}` : user?.username || 'Usuario'}
+              <p className="text-xs font-semibold text-white truncate">
+                {user?.nombre || 'Administrador'}
               </p>
-              <p className="text-xs text-slate-400 truncate flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                {user?.role || 'Operador'}
+              <p className="text-[11px] text-slate-400 truncate">
+                {user?.email || 'admin@empresa.com'}
               </p>
             </div>
           </NavLink>
 
           <button
-            onClick={handleLogout}
+            onClick={logout}
             title="Cerrar sesión"
-            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors ml-1"
+            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors"
           >
             <LogOut className="w-4 h-4" />
           </button>

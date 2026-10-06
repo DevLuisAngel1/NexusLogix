@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Boxes, Lock, Mail, Eye, EyeOff, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import {
+  Package,
+  ClipboardList,
+  Truck,
+  Users,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Loader2,
+  CheckCircle2
+} from 'lucide-react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -16,25 +27,21 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!username.trim() || !password) {
-      setError('Por favor, ingresa tu usuario/correo y contraseña.');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const res = await login(username.trim(), password);
-      if (res.success) {
-        navigate('/dashboard');
-      } else {
-        setError(res.mensaje || 'Credenciales inválidas.');
-      }
+      await login(username, password);
+      navigate('/dashboard');
     } catch (err) {
-      console.error('Error de login:', err);
-      const serverMsg = err.response?.data?.mensaje || 'Error al conectar con el servidor backend.';
-      setError(serverMsg);
+      console.error('Error al iniciar sesión:', err);
+      const serverMsg = err.response?.data?.message || err.message;
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError('Credenciales inválidas. Verifica tu usuario y contraseña.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('No se pudo conectar con el servidor Spring Boot (puerto 8090). ¿Está iniciado?');
+      } else {
+        setError(serverMsg || 'Error inesperado al iniciar sesión.');
+      }
     } finally {
       setLoading(false);
     }
@@ -43,180 +50,210 @@ export default function Login() {
   const handleQuickFill = (u, p) => {
     setUsername(u);
     setPassword(p);
+    setError('');
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
-      {/* Left Column: Brand & Value Prop */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden">
-        {/* Decorative background gradients */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-white">
+      {/* Columna Izquierda: Banner Institucional NexusLogix (Mockup Pantalla 1) */}
+      <div className="md:w-5/12 lg:w-4/12 bg-[#0C1E36] text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden select-none">
+        {/* Glow & Subtle Pattern */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-[#1D68EC]/15 blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
 
-        {/* Top Brand */}
+        {/* Top: Logo NexusLogix */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/30">
-              <Boxes className="w-7 h-7" />
+            <div className="w-10 h-10 rounded-xl bg-[#1D68EC] flex items-center justify-center shadow-lg shadow-[#1D68EC]/40">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-1">
-                Nexus<span className="text-blue-500">Logix</span>
-              </h1>
-              <p className="text-xs text-slate-400 font-medium">Gestión logística, más eficiente</p>
+              <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">NexusLogix</h1>
+            </div>
+          </div>
+          <p className="text-sm text-slate-300 mt-2 font-normal">
+            Gestión logística, más eficiente
+          </p>
+        </div>
+
+        {/* Middle: Warehouse Graphic Banner */}
+        <div className="my-8 relative z-10 rounded-2xl overflow-hidden border border-[#152E50] shadow-2xl bg-gradient-to-b from-[#102A4C] to-[#0A1A2E] p-5">
+          <div className="relative h-44 rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center">
+            {/* Visual warehouse aesthetic illustration with racks & forklift lighting */}
+            <div className="absolute inset-0 bg-cover bg-center opacity-70 mix-blend-luminosity" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80')" }}></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0C1E36] via-[#0C1E36]/40 to-transparent"></div>
+            <div className="relative z-10 text-center px-4">
+              <span className="inline-block px-3 py-1 bg-[#1D68EC]/80 backdrop-blur-md text-[11px] font-semibold text-white rounded-full uppercase tracking-wider mb-2">
+                WMS Inteligente
+              </span>
+              <p className="text-xs text-slate-200">
+                Optimización de rutas, control de stock en tiempo real y despacho automatizado.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Middle Message & Checklist */}
-        <div className="relative z-10 max-w-md my-auto">
-          <h2 className="text-3xl font-extrabold tracking-tight text-white mb-4 leading-tight">
-            Plataforma Integral de Almacenes, Inventario y Despachos
-          </h2>
-          <p className="text-slate-400 text-sm leading-relaxed mb-8">
-            Centraliza existencias en tiempo real, procesa órdenes de clientes B2B y emite guías de remisión con trazabilidad completa.
-          </p>
-
-          <div className="space-y-4">
-            {[
-              'Control de inventario con kardex automatizado',
-              'Gestión de pedidos B2B y cálculo de IGV',
-              'Despachos y asignación de transportistas',
-              'Seguridad stateless con roles y permisos JWT',
-            ].map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm text-slate-300">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>{feature}</span>
-              </div>
-            ))}
+        {/* Bottom: Feature Bullets (Mockup Pantalla 1) */}
+        <div className="space-y-3.5 relative z-10 pt-2 border-t border-[#152E50]/80">
+          <div className="flex items-center gap-3 text-slate-300 text-sm">
+            <div className="w-6 h-6 rounded-md bg-[#152E50] text-[#1D68EC] flex items-center justify-center shrink-0">
+              <Package className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
+            <span>Control de inventario</span>
           </div>
-        </div>
 
-        {/* Footer info */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800 pt-4">
-          <span>NexusLogix WMS v1.0</span>
-          <span>Arquitectura Spring Boot + React</span>
+          <div className="flex items-center gap-3 text-slate-300 text-sm">
+            <div className="w-6 h-6 rounded-md bg-[#152E50] text-[#1D68EC] flex items-center justify-center shrink-0">
+              <ClipboardList className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
+            <span>Gestión de pedidos</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-slate-300 text-sm">
+            <div className="w-6 h-6 rounded-md bg-[#152E50] text-[#1D68EC] flex items-center justify-center shrink-0">
+              <Truck className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
+            <span>Despachos y entregas</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-slate-300 text-sm">
+            <div className="w-6 h-6 rounded-md bg-[#152E50] text-[#1D68EC] flex items-center justify-center shrink-0">
+              <Users className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
+            <span>Usuarios y permisos</span>
+          </div>
         </div>
       </div>
 
-      {/* Right Column: Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-slate-50">
-        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
-          {/* Mobile Brand */}
-          <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-              <Boxes className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold text-slate-900">
-              Nexus<span className="text-blue-600">Logix</span>
-            </h1>
+      {/* Columna Derecha: Formulario de Inicio de Sesión (Mockup Pantalla 1) */}
+      <div className="flex-1 flex flex-col justify-between p-8 sm:p-12 lg:p-16">
+        <div className="max-w-md w-full mx-auto my-auto py-8">
+          {/* Header Form */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Iniciar sesión
+            </h2>
+            <p className="text-sm text-slate-500 mt-1.5">
+              Accede a tu cuenta para continuar
+            </p>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Iniciar sesión</h2>
-            <p className="text-sm text-slate-500 mt-1">Accede a tu cuenta para gestionar el almacén</p>
-          </div>
-
-          {/* Error Banner */}
+          {/* Error Alert */}
           {error && (
-            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3 text-rose-700 text-sm animate-in fade-in">
-              <AlertCircle className="w-5 h-5 shrink-0 text-rose-500 mt-0.5" />
+            <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Correo electrónico o usuario
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Correo electrónico
               </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin o usuario@empresa.com"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all text-slate-900 placeholder:text-slate-400"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="usuario@empresa.com"
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D68EC]/20 focus:border-[#1D68EC] transition-all"
+                required
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                 Contraseña
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all text-slate-900"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D68EC]/20 focus:border-[#1D68EC] transition-all pr-11"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-600">
-                <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" defaultChecked />
+            <div className="flex items-center justify-between text-xs">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-600 select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 text-[#1D68EC] border-slate-300 rounded focus:ring-[#1D68EC]"
+                />
                 <span>Recordar sesión</span>
               </label>
-              <button type="button" className="text-blue-600 hover:underline font-medium">
+              <a href="#recuperar" onClick={(e) => { e.preventDefault(); alert('Por favor contacta al administrador del sistema para restablecer tu clave.'); }} className="text-[#1D68EC] hover:underline font-medium">
                 ¿Olvidaste tu contraseña?
-              </button>
+              </a>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-2.5 px-4 bg-[#1D68EC] hover:bg-[#1555C0] text-white text-sm font-semibold rounded-lg shadow-md shadow-[#1D68EC]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Iniciando sesión...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Iniciando sesión...
                 </>
               ) : (
-                <span>Iniciar sesión</span>
+                'Iniciar sesión'
               )}
             </button>
           </form>
 
-          {/* Quick Demo Credentials Pill */}
+          {/* Quick Credential Shortcuts for testing */}
           <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center mb-2.5">
-              Credenciales de prueba del sistema
+            <p className="text-xs font-semibold text-slate-500 mb-2.5 text-center">
+              Credenciales de prueba rápida:
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin', 'admin123')}
-                className="p-2 text-xs bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded-lg text-slate-600 transition-colors text-center"
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
               >
-                <span className="font-semibold block">admin</span>
-                <span className="text-[10px] text-slate-400">Rol: ADMIN</span>
+                ADMIN
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('almacen.lead', 'almacen123')}
-                className="p-2 text-xs bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded-lg text-slate-600 transition-colors text-center"
+                onClick={() => handleQuickFill('almacenero', 'almacen123')}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
               >
-                <span className="font-semibold block">almacen.lead</span>
-                <span className="text-[10px] text-slate-400">Rol: ALMACÉN</span>
+                ALMACENERO
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('supervisor', 'super123')}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
+              >
+                SUPERVISOR
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Footer in Login (Mockup Pantalla 1) */}
+        <div className="text-center text-xs text-slate-400 select-none">
+          NexusLogix v1.0
         </div>
       </div>
     </div>

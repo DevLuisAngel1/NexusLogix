@@ -1,296 +1,314 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authService } from '../api/authService';
+import React, { useState, useEffect } from 'react';
 import {
-  Package,
-  AlertTriangle,
+  UserPlus,
   ShoppingCart,
+  AlertTriangle,
   Truck,
   TrendingUp,
-  ArrowUpRight,
-  UserPlus,
-  ArrowDownLeft,
-  RefreshCw,
-  Clock,
-  ShieldCheck,
-  CheckCircle2
+  RefreshCw
 } from 'lucide-react';
+import authService from '../api/authService';
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const [metrics, setMetrics] = useState({
-    totalProductos: 0,
-    totalStockBajo: 0,
-    totalPedidosPendientes: 0,
-    totalDespachosEnCurso: 0,
-    pedidos: [],
-    despachos: [],
+    totalProductos: 248,
+    stockBajo: 18,
+    pedidosPendientes: 32,
+    despachosEnCurso: 12,
   });
-  const [loading, setLoading] = useState(true);
 
-  const fetchMetrics = async () => {
-    setLoading(true);
-    const data = await authService.getDashboardMetrics();
-    setMetrics(data);
-    setLoading(false);
-  };
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchMetrics();
+    const fetchStats = async () => {
+      try {
+        const data = await authService.getDashboardMetrics();
+        if (data) {
+          setMetrics(prev => ({
+            ...prev,
+            totalProductos: data.totalProductos ?? 248,
+            pedidosPendientes: data.pedidosPendientes ?? 32,
+            despachosEnCurso: data.despachosEnCurso ?? 12,
+            stockBajo: data.stockBajo ?? 18
+          }));
+        }
+      } catch (err) {
+        console.warn('Usando métricas del diseño mockup:', err);
+      }
+    };
+    fetchStats();
   }, []);
 
-  const metricCards = [
-    {
-      title: 'Total Productos',
-      value: metrics.totalProductos || 248,
-      change: '+12% vs. mes anterior',
-      icon: Package,
-      bg: 'bg-blue-500/10 text-blue-600',
-      border: 'border-blue-100',
-      badgeBg: 'bg-blue-50 text-blue-700',
-    },
-    {
-      title: 'Stock Bajo',
-      value: metrics.totalStockBajo || 18,
-      change: '+5% vs. mes anterior',
-      icon: AlertTriangle,
-      bg: 'bg-emerald-500/10 text-emerald-600',
-      border: 'border-emerald-100',
-      badgeBg: 'bg-emerald-50 text-emerald-700',
-    },
-    {
-      title: 'Pedidos Pendientes',
-      value: metrics.totalPedidosPendientes || 32,
-      change: 'Requieren preparación',
-      icon: ShoppingCart,
-      bg: 'bg-amber-500/10 text-amber-600',
-      border: 'border-amber-100',
-      badgeBg: 'bg-amber-50 text-amber-700',
-    },
-    {
-      title: 'Despachos en Curso',
-      value: metrics.totalDespachosEnCurso || 12,
-      change: '+10% vs. mes anterior',
-      icon: Truck,
-      bg: 'bg-purple-500/10 text-purple-600',
-      border: 'border-purple-100',
-      badgeBg: 'bg-purple-50 text-purple-700',
-    },
-  ];
+  // Datos para el gráfico de líneas (Mockup Pantalla 2)
+  // Días: Lun, Mar, Mié, Jue, Vie, Sáb, Dom
+  // Y: 0 a 100
+  const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+  // Puntos de datos aproximados al mockup
+  const pedidosData = [20, 32, 45, 62, 70, 85, 92]; // Blue line
+  const despachosData = [15, 25, 38, 48, 55, 65, 80]; // Green line
+  const usuariosData = [10, 18, 28, 35, 42, 50, 68]; // Cyan line
+
+  // Helper para convertir coordenadas en SVG
+  const getCoordinates = (dataArr) => {
+    const width = 580;
+    const height = 200;
+    const stepX = width / (dataArr.length - 1);
+
+    return dataArr.map((val, idx) => {
+      const x = idx * stepX + 40;
+      const y = height - (val / 100) * (height - 30) - 20;
+      return { x, y, val };
+    });
+  };
+
+  const pedidosCoords = getCoordinates(pedidosData);
+  const despachosCoords = getCoordinates(despachosData);
+  const usuariosCoords = getCoordinates(usuariosData);
+
+  const makePath = (coords) => {
+    return coords.reduce((acc, curr, idx) => {
+      return idx === 0 ? `M ${curr.x} ${curr.y}` : `${acc} L ${curr.x} ${curr.y}`;
+    }, '');
+  };
 
   return (
     <div className="space-y-6">
-      {/* Top Header & Welcome */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Header del Dashboard (Mockup Pantalla 2) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Resumen general del sistema logístico NexusLogix WMS
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={fetchMetrics}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? 'animate-spin' : ''}`} />
-            Actualizar
-          </button>
+          <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+          <p className="text-sm text-slate-500">Resumen general del sistema</p>
         </div>
       </div>
 
-      {/* 4 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metricCards.map((card, i) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={i}
-              className={`bg-white p-5 rounded-2xl border ${card.border} shadow-xs hover:shadow-md transition-all`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  {card.title}
-                </span>
-                <div className={`w-9 h-9 rounded-xl ${card.bg} flex items-center justify-center`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {card.value}
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex items-center gap-1.5 text-xs">
-                <span className={`px-2 py-0.5 rounded-full font-medium ${card.badgeBg}`}>
-                  {card.change}
-                </span>
-              </div>
+      {/* 4 Tarjetas de Métricas con Fondos Sólidos Vibrantes (Exacto al Mockup Pantalla 2) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Card 1: Total Productos (Azul Sólido) */}
+        <div className="bg-[#1D68EC] text-white rounded-xl p-5 shadow-sm relative overflow-hidden transition-transform hover:-translate-y-0.5">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-blue-100 uppercase tracking-wide">
+              Total Productos
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight">
+              {metrics.totalProductos}
+            </h2>
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-blue-200">
+                +12% vs. mes anterior
+              </span>
             </div>
-          );
-        })}
+          </div>
+        </div>
+
+        {/* Card 2: Stock Bajo (Verde Sólido) */}
+        <div className="bg-[#10B981] text-white rounded-xl p-5 shadow-sm relative overflow-hidden transition-transform hover:-translate-y-0.5">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-emerald-100 uppercase tracking-wide">
+              Stock Bajo
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight">
+              {metrics.stockBajo}
+            </h2>
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-emerald-200">
+                -5% vs. mes anterior
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Pedidos Pendientes (Naranja Sólido) */}
+        <div className="bg-[#F59E0B] text-white rounded-xl p-5 shadow-sm relative overflow-hidden transition-transform hover:-translate-y-0.5">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-amber-100 uppercase tracking-wide">
+              Pedidos Pendientes
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight">
+              {metrics.pedidosPendientes}
+            </h2>
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-amber-100">
+                +8% vs. mes anterior
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Despachos en Curso (Morado/Púrpura Sólido) */}
+        <div className="bg-[#7C3AED] text-white rounded-xl p-5 shadow-sm relative overflow-hidden transition-transform hover:-translate-y-0.5">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-purple-100 uppercase tracking-wide">
+              Despachos en Curso
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight">
+              {metrics.despachosEnCurso}
+            </h2>
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-purple-200">
+                +3% vs. mes anterior
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Middle Grid: Activity Chart & Recent Movements */}
+      {/* Sección Gráfico y Últimos Movimientos (Mockup Pantalla 2) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left (2 cols): Actividad del Sistema Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Actividad del sistema</h2>
-              <p className="text-xs text-slate-400">Tendencia semanal de operaciones logísticas</p>
-            </div>
-
-            <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Pedidos
+        {/* Gráfico: Actividad del sistema (2 columnas) */}
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-3">
+            <h3 className="font-bold text-slate-800 text-base">Actividad del sistema</h3>
+            
+            {/* Leyenda idéntica al mockup */}
+            <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#1D68EC]"></span>
+                Pedidos
               </span>
-              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Despachos
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+                Despachos
               </span>
-              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Usuarios
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#06B6D4]"></span>
+                Usuarios
               </span>
             </div>
           </div>
 
-          {/* SVG Vector Chart matching Mockup */}
-          <div className="h-64 w-full relative">
-            <svg viewBox="0 0 600 200" className="w-full h-full overflow-visible">
-              {/* Background horizontal grid lines */}
-              <line x1="40" y1="20" x2="580" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-              <text x="30" y="24" fill="#94a3b8" fontSize="10" textAnchor="end">100</text>
+          {/* Gráfico SVG de Líneas */}
+          <div className="w-full overflow-x-auto pt-2">
+            <svg viewBox="0 0 660 230" className="w-full h-56 select-none font-sans">
+              {/* Ejes y Líneas horizontales de referencia */}
+              {[100, 75, 50, 25, 0].map((val) => {
+                const y = 200 - (val / 100) * 170 - 20;
+                return (
+                  <g key={val}>
+                    <text x="10" y={y + 4} className="text-[11px] fill-slate-400" textAnchor="start">
+                      {val}
+                    </text>
+                    <line x1="35" y1={y} x2="650" y2={y} stroke="#E2E8F0" strokeDasharray="3 3" strokeWidth="1" />
+                  </g>
+                );
+              })}
 
-              <line x1="40" y1="65" x2="580" y2="65" stroke="#f1f5f9" strokeWidth="1" />
-              <text x="30" y="69" fill="#94a3b8" fontSize="10" textAnchor="end">75</text>
+              {/* Etiquetas Eje X (Días) */}
+              {days.map((day, idx) => {
+                const x = idx * (580 / 6) + 40;
+                return (
+                  <text key={day} x={x} y="222" className="text-[11px] fill-slate-500 font-medium" textAnchor="middle">
+                    {day}
+                  </text>
+                );
+              })}
 
-              <line x1="40" y1="110" x2="580" y2="110" stroke="#f1f5f9" strokeWidth="1" />
-              <text x="30" y="114" fill="#94a3b8" fontSize="10" textAnchor="end">50</text>
-
-              <line x1="40" y1="155" x2="580" y2="155" stroke="#f1f5f9" strokeWidth="1" />
-              <text x="30" y="159" fill="#94a3b8" fontSize="10" textAnchor="end">25</text>
-
-              <line x1="40" y1="190" x2="580" y2="190" stroke="#e2e8f0" strokeWidth="1" />
-              <text x="30" y="193" fill="#94a3b8" fontSize="10" textAnchor="end">0</text>
-
-              {/* Day Labels */}
-              {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, idx) => (
-                <text
-                  key={idx}
-                  x={70 + idx * 80}
-                  y="215"
-                  fill="#64748b"
-                  fontSize="10.5"
-                  fontWeight="600"
-                  textAnchor="middle"
-                >
-                  {day}
-                </text>
+              {/* Línea Usuarios (Cyan) */}
+              <path
+                d={makePath(usuariosCoords)}
+                fill="none"
+                stroke="#06B6D4"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {usuariosCoords.map((pt, i) => (
+                <circle key={`u-${i}`} cx={pt.x} cy={pt.y} r="4" fill="#06B6D4" stroke="#FFFFFF" strokeWidth="2" />
               ))}
 
-              {/* Line 1: Pedidos (Blue) */}
-              <polyline
+              {/* Línea Despachos (Verde) */}
+              <path
+                d={makePath(despachosCoords)}
                 fill="none"
-                stroke="#2563eb"
+                stroke="#10B981"
                 strokeWidth="2.5"
-                points="70,140 150,110 230,85 310,95 390,45 470,60 550,35"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
+              {despachosCoords.map((pt, i) => (
+                <circle key={`d-${i}`} cx={pt.x} cy={pt.y} r="4" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" />
+              ))}
 
-              {/* Line 2: Despachos (Emerald) */}
-              <polyline
+              {/* Línea Pedidos (Azul) */}
+              <path
+                d={makePath(pedidosCoords)}
                 fill="none"
-                stroke="#10b981"
+                stroke="#1D68EC"
                 strokeWidth="2.5"
-                points="70,160 150,135 230,120 310,110 390,75 470,85 550,55"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
-
-              {/* Line 3: Usuarios (Purple) */}
-              <polyline
-                fill="none"
-                stroke="#a855f7"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-                points="70,175 150,165 230,150 310,140 390,120 470,125 550,110"
-              />
-
-              {/* Points for Pedidos */}
-              {[
-                [70, 140], [150, 110], [230, 85], [310, 95], [390, 45], [470, 60], [550, 35]
-              ].map(([cx, cy], idx) => (
-                <circle key={idx} cx={cx} cy={cy} r="4" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
+              {pedidosCoords.map((pt, i) => (
+                <circle key={`p-${i}`} cx={pt.x} cy={pt.y} r="4" fill="#1D68EC" stroke="#FFFFFF" strokeWidth="2" />
               ))}
             </svg>
           </div>
         </div>
 
-        {/* Right (1 col): Últimos Movimientos */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-900">Últimos movimientos</h2>
-              <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                En vivo
-              </span>
+        {/* Últimos Movimientos (1 columna, idéntico al Mockup Pantalla 2) */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <h3 className="font-bold text-slate-800 text-base mb-4">Últimos movimientos</h3>
+
+          <div className="space-y-4">
+            {/* Movimiento 1 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 text-[#1D68EC] flex items-center justify-center shrink-0 mt-0.5">
+                <UserPlus className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 leading-snug">
+                  Nuevo usuario registrado
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Ana Torres - 10:24
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {[
-                {
-                  title: 'Nuevo usuario registrado',
-                  sub: 'Ana Torres - 10:24',
-                  icon: UserPlus,
-                  color: 'text-blue-600 bg-blue-50',
-                },
-                {
-                  title: 'Pedido #P-1042 creado',
-                  sub: 'Cliente Empresa SAC - 09:58',
-                  icon: ShoppingCart,
-                  color: 'text-purple-600 bg-purple-50',
-                },
-                {
-                  title: 'Stock bajo en producto XYZ',
-                  sub: 'Quedan 5 unidades - 08:32',
-                  icon: AlertTriangle,
-                  color: 'text-amber-600 bg-amber-50',
-                },
-                {
-                  title: 'Despacho #D-003 entregado',
-                  sub: 'Cliente Lima SAC - 07:15',
-                  icon: CheckCircle2,
-                  color: 'text-emerald-600 bg-emerald-50',
-                },
-              ].map((ev, idx) => {
-                const EvIcon = ev.icon;
-                return (
-                  <div key={idx} className="flex items-start gap-3 text-xs pb-3 border-b border-slate-100 last:border-none last:pb-0">
-                    <div className={`w-8 h-8 rounded-lg ${ev.color} flex items-center justify-center shrink-0`}>
-                      <EvIcon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-800 leading-tight truncate">{ev.title}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {ev.sub}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Movimiento 2 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center shrink-0 mt-0.5">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 leading-snug">
+                  Pedido #P-1042 creado
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Cliente Empresa SAC - 09:58
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="pt-4 border-t border-slate-100 mt-4">
-            <NavLink
-              to="/productos"
-              className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50/60 py-2 rounded-lg transition-colors"
-            >
-              Ver registro completo de almacén
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </NavLink>
+            {/* Movimiento 3 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 leading-snug">
+                  Stock bajo en producto XYZ
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Quedan 5 unidades - 08:32
+                </p>
+              </div>
+            </div>
+
+            {/* Movimiento 4 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+                <Truck className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 leading-snug">
+                  Despacho #D-003 entregado
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Cliente Lima SAC - 07:15
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
