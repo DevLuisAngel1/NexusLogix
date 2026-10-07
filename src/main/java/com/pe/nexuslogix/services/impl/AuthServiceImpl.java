@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -62,15 +61,16 @@ public class AuthServiceImpl implements AuthService {
 
             return new LoginResponseDTO(true, "Autenticación satisfactoria.", jwt, userResponse);
         } catch (BadCredentialsException e) {
-            return new LoginResponseDTO(false, "Credenciales inválidas.", null, null);
+            return new LoginResponseDTO(false, "Credenciales inválidas. Verifica tu usuario y contraseña.", null, null);
         } catch (DisabledException | LockedException e) {
             return new LoginResponseDTO(false, "El usuario se encuentra inactivo.", null, null);
         } catch (Exception e) {
-            return new LoginResponseDTO(false, "Error durante la autenticación.", null, null);
+            return new LoginResponseDTO(false, "Error durante la autenticación: " + e.getMessage(), null, null);
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponseDTO getUserProfile(Long id) {
         return userRepository.findById(id)
                 .map(UserResponseDTO::new)
@@ -78,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDTO> listAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserResponseDTO::new)
