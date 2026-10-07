@@ -1,7 +1,6 @@
 import api from './axios';
 
 export const authService = {
-  // Autenticación de usuario
   async login(username, password) {
     const response = await api.post('/auth/login', {
       username: username,
@@ -11,19 +10,32 @@ export const authService = {
     return response.data;
   },
 
-  // Consulta de perfil por ID
   async getProfile(id) {
     const response = await api.get(`/auth/profile/${id}`);
     return response.data;
   },
 
-  // Listado de usuarios del sistema
   async getAllUsers() {
     const response = await api.get('/auth/users');
+    const result = response.data;
+    return Array.isArray(result) ? result : (result?.data || []);
+  },
+
+  async createUser(userData) {
+    const response = await api.post('/auth/users', userData);
     return response.data;
   },
 
-  // Obtención de métricas en tiempo real para el Dashboard
+  async updateUser(id, userData) {
+    const response = await api.put(`/auth/users/${id}`, userData);
+    return response.data;
+  },
+
+  async deleteUser(id) {
+    const response = await api.delete(`/auth/users/${id}`);
+    return response.data;
+  },
+
   async getDashboardMetrics() {
     try {
       const [productosRes, stockBajoRes, pedidosRes, despachosRes] = await Promise.allSettled([

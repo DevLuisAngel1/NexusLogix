@@ -16,17 +16,14 @@ import {
 export default function Sidebar() {
   const { user, logout } = useAuth();
 
-  // Control de Acceso por Roles (RBAC):
-  // Solo los Administradores tienen acceso al módulo de gestión de usuarios.
-  const isAdmin =
-    user?.rol === 'ROLE_ADMINISTRADOR' ||
-    user?.rol === 'ADMIN' ||
-    user?.username === 'admin';
+  const userRole = String(user?.rol || user?.role || '').toUpperCase();
+  const username = String(user?.username || '').toLowerCase();
 
-  // Módulos del sistema:
-  // - Dashboard, Perfil: Habilitados para usuarios autenticados.
-  // - Usuarios: Habilitado únicamente para Administradores.
-  // - Productos, Pedidos, Despachos, Portal B2B, Reportes: Deshabilitados temporalmente para desarrollo de compañeros.
+  const isAdmin =
+    userRole.includes('ADMIN') ||
+    username === 'admin' ||
+    username === 'administrador';
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, enabled: true },
     { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: isAdmin },
@@ -44,7 +41,6 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-[#0C1E36] text-white flex flex-col shrink-0 min-h-screen border-r border-[#152E50] select-none">
-      {/* Brand Header */}
       <div className="h-16 flex items-center px-6 gap-3 border-b border-[#152E50]/70">
         <div className="w-9 h-9 rounded-lg bg-[#1D68EC] flex items-center justify-center shadow-lg shadow-[#1D68EC]/30">
           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -59,7 +55,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation Menu */}
       <nav className="flex-1 py-5 px-3.5 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -97,7 +92,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* User Profile in Sidebar */}
       <div className="p-3.5 border-t border-[#152E50]/70 bg-[#0A1A2E]">
         <div className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-[#152E50]/50 transition-colors">
           <NavLink to="/perfil" className="flex items-center gap-3 min-w-0 flex-1">
@@ -109,7 +103,7 @@ export default function Sidebar() {
                 {user?.nombre || 'Administrador'}
               </p>
               <p className="text-[11px] text-slate-400 truncate">
-                {user?.email || 'admin@empresa.com'}
+                {user?.email || 'admin@nexuslogix.pe'}
               </p>
             </div>
           </NavLink>

@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Inicializar estado desde localStorage
     const savedToken = localStorage.getItem('nexus_token');
     const savedUser = localStorage.getItem('nexus_user');
 
@@ -29,14 +28,17 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     const data = await authService.login(username, password);
     if (data.token) {
+      const u = data.usuario || {};
       const userData = {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        nombre: data.nombre,
-        apellido: data.apellido,
-        role: data.role,
-        area: data.area,
+        id: u.id ?? data.id,
+        username: u.username || data.username || username,
+        email: u.email || data.email || `${username}@nexuslogix.pe`,
+        nombre: u.nombre || data.nombre || username,
+        apellido: u.apellido || data.apellido || '',
+        rol: u.rol || data.rol || data.role || (username.toLowerCase().includes('admin') ? 'ROLE_ADMINISTRADOR' : 'OPERADOR'),
+        role: u.rol || data.rol || data.role || (username.toLowerCase().includes('admin') ? 'ROLE_ADMINISTRADOR' : 'OPERADOR'),
+        area: u.area || data.area || 'Logística',
+        estado: u.estado || 'ACTIVO',
       };
 
       setToken(data.token);
