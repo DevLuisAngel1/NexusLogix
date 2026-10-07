@@ -16,11 +16,20 @@ import {
 export default function Sidebar() {
   const { user, logout } = useAuth();
 
-  // Módulos del sistema: Se mantienen habilitados solo los correspondientes al Integrante 1 (Auth, Dashboard, Usuarios, Perfil).
-  // Los módulos de los compañeros quedan deshabilitados sin mensajes para que ellos los complementen en sus respectivas ramas.
+  // Control de Acceso por Roles (RBAC):
+  // Solo los Administradores tienen acceso al módulo de gestión de usuarios.
+  const isAdmin =
+    user?.rol === 'ROLE_ADMINISTRADOR' ||
+    user?.rol === 'ADMIN' ||
+    user?.username === 'admin';
+
+  // Módulos del sistema:
+  // - Dashboard, Perfil: Habilitados para usuarios autenticados.
+  // - Usuarios: Habilitado únicamente para Administradores.
+  // - Productos, Pedidos, Despachos, Portal B2B, Reportes: Deshabilitados temporalmente para desarrollo de compañeros.
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, enabled: true },
-    { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: true },
+    { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: isAdmin },
     { name: 'Productos', path: '/productos', icon: Package, enabled: false },
     { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, enabled: false },
     { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, enabled: false },
@@ -56,12 +65,12 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           if (!item.enabled) {
-            // Módulo de compañeros: Deshabilitado sin mensajes
             return (
               <div
                 key={item.name}
                 className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 opacity-35 cursor-not-allowed select-none"
                 aria-disabled="true"
+                title={item.name === 'Usuarios' ? 'Acceso restringido a Administradores' : 'Módulo en desarrollo'}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{item.name}</span>
@@ -88,7 +97,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* User Profile in Sidebar (Integrante 1) */}
+      {/* User Profile in Sidebar */}
       <div className="p-3.5 border-t border-[#152E50]/70 bg-[#0A1A2E]">
         <div className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-[#152E50]/50 transition-colors">
           <NavLink to="/perfil" className="flex items-center gap-3 min-w-0 flex-1">
