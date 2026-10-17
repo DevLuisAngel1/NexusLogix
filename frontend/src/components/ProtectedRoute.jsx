@@ -2,8 +2,8 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+export default function ProtectedRoute({ allowedRoles, children }) {
+  const { user, isAuthenticated, loading } = useAuth();
 
   if (loading) {
     return (
@@ -18,6 +18,21 @@ export default function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    const roleStr = String(user?.rol || user?.role || '').toUpperCase();
+    const userStr = String(user?.username || '').toLowerCase();
+
+    const isAdmin = roleStr.includes('ADMIN') || userStr === 'admin' || userStr === 'administrador';
+    const isCliente = roleStr.includes('CLIENTE') || userStr.includes('cliente') || userStr.includes('minero');
+
+    const currentRole = isAdmin ? 'ADMIN' : (isCliente ? 'CLIENTE' : 'OPERADOR');
+
+    if (!allowedRoles.includes(currentRole)) {
+      const fallback = isCliente ? '/portal-b2b' : '/dashboard';
+      return <Navigate to={fallback} replace />;
+    }
   }
 
   return children ? children : <Outlet />;

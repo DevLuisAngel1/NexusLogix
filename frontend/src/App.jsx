@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 
@@ -14,15 +14,22 @@ import DispatchPlaceholder from './pages/DispatchPlaceholder';
 import B2BPortal from './pages/B2BPortal';
 import ReportsPlaceholder from './pages/ReportsPlaceholder';
 
+function DefaultRedirect() {
+  const { user } = useAuth();
+  const roleStr = String(user?.rol || user?.role || '').toUpperCase();
+  const userStr = String(user?.username || '').toLowerCase();
+  const isCliente = roleStr.includes('CLIENTE') || userStr.includes('cliente') || userStr.includes('minero');
+
+  return <Navigate to={isCliente ? '/portal-b2b' : '/dashboard'} replace />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Ruta pública (Pantalla 1) */}
           <Route path="/login" element={<Login />} />
 
-          {/* Rutas protegidas dentro del Dashboard Layout */}
           <Route
             element={
               <ProtectedRoute>
@@ -30,28 +37,75 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            {/* Pantalla 2 */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            {/* Pantalla 3 */}
-            <Route path="/usuarios" element={<Users />} />
-            {/* Pantalla 11 */}
+            <Route path="/" element={<DefaultRedirect />} />
+            
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/usuarios"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            
             <Route path="/perfil" element={<Profile />} />
             
-            {/* Pantalla 4-6 (Productos) */}
-            <Route path="/productos" element={<ProductsPlaceholder />} />
-            {/* Pantalla 7-8 (Pedidos) */}
-            <Route path="/pedidos" element={<OrdersPlaceholder />} />
-            {/* Pantalla 9 (Portal B2B) */}
-            <Route path="/portal-b2b" element={<B2BPortal />} />
-            {/* Pantalla 10 (Despachos) */}
-            <Route path="/despachos" element={<DispatchPlaceholder />} />
-            {/* Reportes */}
-            <Route path="/reportes" element={<ReportsPlaceholder />} />
+            <Route
+              path="/productos"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
+                  <ProductsPlaceholder />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/pedidos"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
+                  <OrdersPlaceholder />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/portal-b2b"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'CLIENTE']}>
+                  <B2BPortal />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/despachos"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
+                  <DispatchPlaceholder />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/reportes"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ReportsPlaceholder />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<DefaultRedirect />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

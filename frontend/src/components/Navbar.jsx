@@ -11,6 +11,10 @@ export default function Navbar() {
     return (name && name.charAt(0)) ? name.charAt(0).toUpperCase() : 'A';
   };
 
+  const displayName = user
+    ? `${user.nombre || ''} ${user.apellido && user.apellido !== '-' ? user.apellido : ''}`.trim() || user.username
+    : 'Administrador';
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30">
       {/* Search Bar matching Mockup */}
@@ -44,7 +48,7 @@ export default function Navbar() {
               {getInitial(user?.nombre || user?.username)}
             </div>
             <span className="text-sm font-semibold text-slate-700 hidden sm:inline-block">
-              {user?.nombre || 'Administrador'}
+              {displayName}
             </span>
             <ChevronDown className="w-4 h-4 text-slate-400" />
           </button>
@@ -53,7 +57,7 @@ export default function Navbar() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-50">
               <div className="px-4 py-2 border-b border-slate-100">
-                <p className="text-xs font-semibold text-slate-800 truncate">{user?.nombre || 'Administrador'}</p>
+                <p className="text-xs font-semibold text-slate-800 truncate">{displayName}</p>
                 <p className="text-[11px] text-slate-400 truncate">{user?.email || 'admin@empresa.com'}</p>
               </div>
 

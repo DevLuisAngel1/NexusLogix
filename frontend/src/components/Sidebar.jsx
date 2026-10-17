@@ -24,20 +24,31 @@ export default function Sidebar() {
     username === 'admin' ||
     username === 'administrador';
 
+  const isCliente =
+    userRole.includes('CLIENTE') ||
+    username.includes('cliente') ||
+    username.includes('minero');
+
+  const isOperador = !isAdmin && !isCliente;
+
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, enabled: true },
-    { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: isAdmin },
-    { name: 'Productos', path: '/productos', icon: Package, enabled: true },
-    { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, enabled: true },
-    { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, enabled: true },
-    { name: 'Despachos', path: '/despachos', icon: Truck, enabled: true },
-    { name: 'Reportes', path: '/reportes', icon: BarChart3, enabled: false },
-    { name: 'Perfil', path: '/perfil', icon: User, enabled: true },
-  ];
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, visible: isAdmin || isOperador, enabled: true },
+    { name: 'Usuarios', path: '/usuarios', icon: Users, visible: isAdmin, enabled: true },
+    { name: 'Productos', path: '/productos', icon: Package, visible: isAdmin || isOperador, enabled: true },
+    { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, visible: isAdmin || isOperador, enabled: true },
+    { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, visible: isAdmin || isCliente, enabled: true },
+    { name: 'Despachos', path: '/despachos', icon: Truck, visible: isAdmin || isOperador, enabled: true },
+    { name: 'Reportes', path: '/reportes', icon: BarChart3, visible: isAdmin, enabled: false },
+    { name: 'Perfil', path: '/perfil', icon: User, visible: true, enabled: true },
+  ].filter((item) => item.visible);
 
   const getInitial = (name) => {
     return (name && name.charAt(0)) ? name.charAt(0).toUpperCase() : 'A';
   };
+
+  const displayName = user
+    ? `${user.nombre || ''} ${user.apellido && user.apellido !== '-' ? user.apellido : ''}`.trim() || user.username
+    : 'Administrador';
 
   return (
     <aside className="w-64 bg-[#0C1E36] text-white flex flex-col shrink-0 min-h-screen border-r border-[#152E50] select-none">
@@ -65,7 +76,7 @@ export default function Sidebar() {
                 key={item.name}
                 className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 opacity-35 cursor-not-allowed select-none"
                 aria-disabled="true"
-                title={item.name === 'Usuarios' ? 'Acceso restringido a Administradores' : 'Módulo en desarrollo'}
+                title="Módulo en desarrollo"
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{item.name}</span>
@@ -100,7 +111,7 @@ export default function Sidebar() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-white truncate">
-                {user?.nombre || 'Administrador'}
+                {displayName}
               </p>
               <p className="text-[11px] text-slate-400 truncate">
                 {user?.email || 'admin@nexuslogix.pe'}

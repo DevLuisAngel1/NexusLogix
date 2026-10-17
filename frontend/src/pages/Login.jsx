@@ -29,16 +29,24 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(username, password);
-      navigate('/dashboard');
+      const res = await login(username, password);
+      const role = String(res?.user?.rol || res?.user?.role || '').toUpperCase();
+      const isClient = role.includes('CLIENTE') || username.toLowerCase().includes('cliente') || username.toLowerCase().includes('minero');
+      if (isClient) {
+        navigate('/portal-b2b', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err) {
-      console.error('Error al iniciar sesión:', err);
       const serverMsg = err.response?.data?.mensaje || err.message;
       if (err.response?.status === 401 || err.response?.status === 403) {
+        console.warn('Intento de inicio de sesión con credenciales inválidas.');
         setError('Credenciales inválidas. Verifica tu usuario y contraseña.');
       } else if (err.code === 'ERR_NETWORK') {
+        console.error('Error de red al conectar con el backend:', err);
         setError('No se pudo conectar con el servidor Spring Boot (puerto 8090). ¿Está iniciado?');
       } else {
+        console.error('Error inesperado al iniciar sesión:', err);
         setError(serverMsg || 'Error inesperado al iniciar sesión.');
       }
     } finally {
