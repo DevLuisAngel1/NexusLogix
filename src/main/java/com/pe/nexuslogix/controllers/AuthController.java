@@ -26,7 +26,7 @@ public class AuthController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         LoginResponseDTO response = authService.authenticate(request);
         if (!response.isSuccess()) {
-            if ("Credenciales inválidas.".equals(response.getMensaje())) {
+            if (response.getMensaje() != null && response.getMensaje().contains("Credenciales inválidas")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             if ("El usuario se encuentra inactivo.".equals(response.getMensaje())) {
