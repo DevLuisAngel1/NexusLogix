@@ -16,15 +16,17 @@ import {
 export default function Sidebar() {
   const { user, logout } = useAuth();
 
+  // Módulos del sistema: Se mantienen habilitados solo los correspondientes al Integrante 1 (Auth, Dashboard, Usuarios, Perfil).
+  // Los módulos de los compañeros quedan deshabilitados sin mensajes para que ellos los complementen en sus respectivas ramas.
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Usuarios', path: '/usuarios', icon: Users },
-    { name: 'Productos', path: '/productos', icon: Package },
-    { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart },
-    { name: 'Portal B2B', path: '/portal-b2b', icon: Building2 },
-    { name: 'Despachos', path: '/despachos', icon: Truck },
-    { name: 'Reportes', path: '/reportes', icon: BarChart3 },
-    { name: 'Perfil', path: '/perfil', icon: User },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, enabled: true },
+    { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: true },
+    { name: 'Productos', path: '/productos', icon: Package, enabled: false },
+    { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, enabled: false },
+    { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, enabled: false },
+    { name: 'Despachos', path: '/despachos', icon: Truck, enabled: false },
+    { name: 'Reportes', path: '/reportes', icon: BarChart3, enabled: false },
+    { name: 'Perfil', path: '/perfil', icon: User, enabled: true },
   ];
 
   const getInitial = (name) => {
@@ -52,6 +54,21 @@ export default function Sidebar() {
       <nav className="flex-1 py-5 px-3.5 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
+
+          if (!item.enabled) {
+            // Módulo de compañeros: Deshabilitado sin mensajes
+            return (
+              <div
+                key={item.name}
+                className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 opacity-35 cursor-not-allowed select-none"
+                aria-disabled="true"
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{item.name}</span>
+              </div>
+            );
+          }
+
           return (
             <NavLink
               key={item.path}
@@ -71,7 +88,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* User Profile in Sidebar (Matching Mockup screens 2-11) */}
+      {/* User Profile in Sidebar (Integrante 1) */}
       <div className="p-3.5 border-t border-[#152E50]/70 bg-[#0A1A2E]">
         <div className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-[#152E50]/50 transition-colors">
           <NavLink to="/perfil" className="flex items-center gap-3 min-w-0 flex-1">
@@ -91,7 +108,7 @@ export default function Sidebar() {
           <button
             onClick={logout}
             title="Cerrar sesión"
-            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
           </button>
