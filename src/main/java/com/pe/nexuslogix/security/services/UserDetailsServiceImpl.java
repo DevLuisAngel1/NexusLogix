@@ -24,19 +24,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         String search = identifier.trim().toLowerCase();
 
-        // Mapeo inteligente de alias comunes usados en frontend y pruebas
-        if (search.equals("almacenero") || search.equals("almacen")) {
+        // Alias de login rápido
+        if (search.equals("operador") || search.equals("almacenero") || search.equals("almacen")) {
             search = "almacen.lead";
         } else if (search.equals("supervisor") || search.equals("despacho")) {
             search = "despacho.op";
-        } else if (search.equals("cliente")) {
+        } else if (search.equals("cliente") || search.equals("minero")) {
             search = "cliente.minero";
         }
 
-        // 1. Buscar por el identificador o alias mapeado
         String finalSearch = search;
         User user = userRepository.findByUsernameOrEmail(finalSearch)
-                // 2. Si no se encuentra, intentar con el texto original sin procesar
                 .orElseGet(() -> userRepository.findByUsernameOrEmail(identifier.trim())
                         .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con credencial: " + identifier)));
 

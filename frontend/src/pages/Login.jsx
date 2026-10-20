@@ -9,8 +9,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  Loader2,
-  CheckCircle2
+  Loader2
 } from 'lucide-react';
 
 export default function Login() {
@@ -34,7 +33,7 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err) {
       console.error('Error al iniciar sesión:', err);
-      const serverMsg = err.response?.data?.message || err.message;
+      const serverMsg = err.response?.data?.mensaje || err.message;
       if (err.response?.status === 401 || err.response?.status === 403) {
         setError('Credenciales inválidas. Verifica tu usuario y contraseña.');
       } else if (err.code === 'ERR_NETWORK') {
@@ -55,13 +54,10 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white">
-      {/* Columna Izquierda: Banner Institucional NexusLogix (Mockup Pantalla 1) */}
       <div className="md:w-5/12 lg:w-4/12 bg-[#0C1E36] text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden select-none">
-        {/* Glow & Subtle Pattern */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-[#1D68EC]/15 blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
 
-        {/* Top: Logo NexusLogix */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1D68EC] flex items-center justify-center shadow-lg shadow-[#1D68EC]/40">
@@ -80,24 +76,24 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Middle: Warehouse Graphic Banner */}
         <div className="my-8 relative z-10 rounded-2xl overflow-hidden border border-[#152E50] shadow-2xl bg-gradient-to-b from-[#102A4C] to-[#0A1A2E] p-5">
           <div className="relative h-44 rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center">
-            {/* Visual warehouse aesthetic illustration with racks & forklift lighting */}
-            <div className="absolute inset-0 bg-cover bg-center opacity-70 mix-blend-luminosity" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80')" }}></div>
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-70 mix-blend-luminosity"
+              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80')" }}
+            ></div>
             <div className="absolute inset-0 bg-gradient-to-t from-[#0C1E36] via-[#0C1E36]/40 to-transparent"></div>
             <div className="relative z-10 text-center px-4">
               <span className="inline-block px-3 py-1 bg-[#1D68EC]/80 backdrop-blur-md text-[11px] font-semibold text-white rounded-full uppercase tracking-wider mb-2">
                 WMS Inteligente
               </span>
               <p className="text-xs text-slate-200">
-                Optimización de rutas, control de stock en tiempo real y despacho automatizado.
+                Control de existencias en tiempo real, trazabilidad y despacho automatizado.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom: Feature Bullets (Mockup Pantalla 1) */}
         <div className="space-y-3.5 relative z-10 pt-2 border-t border-[#152E50]/80">
           <div className="flex items-center gap-3 text-slate-300 text-sm">
             <div className="w-6 h-6 rounded-md bg-[#152E50] text-[#1D68EC] flex items-center justify-center shrink-0">
@@ -129,10 +125,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Columna Derecha: Formulario de Inicio de Sesión (Mockup Pantalla 1) */}
       <div className="flex-1 flex flex-col justify-between p-8 sm:p-12 lg:p-16">
         <div className="max-w-md w-full mx-auto my-auto py-8">
-          {/* Header Form */}
           <div className="mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Iniciar sesión
@@ -142,7 +136,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Error Alert */}
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-3">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
@@ -150,11 +143,10 @@ export default function Login() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-                Correo electrónico
+                Correo electrónico o usuario
               </label>
               <input
                 type="text"
@@ -182,7 +174,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -199,7 +191,14 @@ export default function Login() {
                 />
                 <span>Recordar sesión</span>
               </label>
-              <a href="#recuperar" onClick={(e) => { e.preventDefault(); alert('Por favor contacta al administrador del sistema para restablecer tu clave.'); }} className="text-[#1D68EC] hover:underline font-medium">
+              <a
+                href="#recuperar"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert('Para restablecer tu contraseña, contacta al administrador del sistema.');
+                }}
+                className="text-[#1D68EC] hover:underline font-medium"
+              >
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
@@ -220,7 +219,6 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Quick Credential Shortcuts for testing */}
           <div className="mt-8 pt-6 border-t border-slate-100">
             <p className="text-xs font-semibold text-slate-500 mb-2.5 text-center">
               Credenciales de prueba rápida:
@@ -229,29 +227,28 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin', 'admin123')}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-semibold text-slate-700 transition-colors text-center cursor-pointer"
               >
                 ADMIN
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('almacenero', 'almacen123')}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
+                onClick={() => handleQuickFill('operador', 'almacen123')}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-semibold text-slate-700 transition-colors text-center cursor-pointer"
               >
-                ALMACENERO
+                OPERADOR
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('supervisor', 'super123')}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-medium text-slate-700 transition-colors text-center"
+                onClick={() => handleQuickFill('cliente', 'cliente123')}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-semibold text-slate-700 transition-colors text-center cursor-pointer"
               >
-                SUPERVISOR
+                CLIENTE
               </button>
             </div>
           </div>
         </div>
 
-        {/* Footer in Login (Mockup Pantalla 1) */}
         <div className="text-center text-xs text-slate-400 select-none">
           NexusLogix v1.0
         </div>
