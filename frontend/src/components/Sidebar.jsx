@@ -27,7 +27,7 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, enabled: true },
     { name: 'Usuarios', path: '/usuarios', icon: Users, enabled: isAdmin },
-    { name: 'Productos', path: '/productos', icon: Package, enabled: false },
+    { name: 'Productos', path: '/productos', icon: Package, enabled: true },
     { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, enabled: false },
     { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, enabled: false },
     { name: 'Despachos', path: '/despachos', icon: Truck, enabled: false },
