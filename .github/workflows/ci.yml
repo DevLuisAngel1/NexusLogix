@@ -1,0 +1,50 @@
+name: NexusLogix CI
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-build:
+    name: Build Backend (Spring Boot)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 26 (Oracle)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26'
+          distribution: 'oracle'
+          cache: maven
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Compile Backend with Maven
+        run: ./mvnw clean compile -DskipTests
+
+  frontend-build:
+    name: Build Frontend (React + Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Production Bundle
+        working-directory: ./frontend
+        run: npm run build
