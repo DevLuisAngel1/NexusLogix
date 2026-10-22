@@ -23,4 +23,7 @@ public class Cliente {
     private String email;
     private String sectorIndustrial;
     private String estado;
+
+    public Cliente() {
+    }
 }
