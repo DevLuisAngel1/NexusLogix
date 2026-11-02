@@ -29,9 +29,7 @@ target/
 .vscode/
 
 
-### carpetas ###
-database/
-docs/
+### carpetas locales ignoradas ###
 
 ### Node / Frontend ###
 node_modules/

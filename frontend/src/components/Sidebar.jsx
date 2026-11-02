@@ -38,7 +38,7 @@ export default function Sidebar() {
     { name: 'Pedidos', path: '/pedidos', icon: ShoppingCart, visible: isAdmin || isOperador, enabled: true },
     { name: 'Portal B2B', path: '/portal-b2b', icon: Building2, visible: isAdmin || isCliente, enabled: true },
     { name: 'Despachos', path: '/despachos', icon: Truck, visible: isAdmin || isOperador, enabled: true },
-    { name: 'Reportes', path: '/reportes', icon: BarChart3, visible: isAdmin, enabled: false },
+    { name: 'Reportes', path: '/reportes', icon: BarChart3, visible: isAdmin || isOperador, enabled: true },
     { name: 'Perfil', path: '/perfil', icon: User, visible: true, enabled: true },
   ].filter((item) => item.visible);
 
