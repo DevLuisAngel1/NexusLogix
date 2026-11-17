@@ -155,21 +155,37 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
 
+        if (data.containsKey("apellido")) {
+            String apellido = (String) data.get("apellido");
+            if (apellido != null) {
+                user.setApellido(apellido.trim());
+            }
+        }
+
         if (data.containsKey("nombre")) {
             String fullName = (String) data.get("nombre");
-            if (fullName != null && fullName.trim().contains(" ")) {
-                int idx = fullName.trim().indexOf(" ");
-                user.setNombre(fullName.substring(0, idx).trim());
-                user.setApellido(fullName.substring(idx + 1).trim());
-            } else if (fullName != null) {
-                user.setNombre(fullName.trim());
+            if (fullName != null) {
+                if (data.containsKey("apellido")) {
+                    user.setNombre(fullName.trim());
+                } else if (fullName.trim().contains(" ")) {
+                    int idx = fullName.trim().indexOf(" ");
+                    user.setNombre(fullName.substring(0, idx).trim());
+                    user.setApellido(fullName.substring(idx + 1).trim());
+                } else {
+                    user.setNombre(fullName.trim());
+                }
             }
         }
 
         if (data.containsKey("email")) {
             String email = (String) data.get("email");
             if (email != null && !email.isBlank()) {
-                user.setEmail(email.trim());
+                String cleanEmail = email.trim();
+                java.util.Optional<User> existing = userRepository.findByEmail(cleanEmail);
+                if (existing.isPresent() && !existing.get().getId().equals(user.getId())) {
+                    throw new IllegalArgumentException("El correo electrónico '" + cleanEmail + "' ya está registrado por otro usuario.");
+                }
+                user.setEmail(cleanEmail);
             }
         }
 
@@ -186,10 +202,21 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        if (data.containsKey("password")) {
-            String pass = (String) data.get("password");
+        if (data.containsKey("password") || data.containsKey("nuevaPassword")) {
+            String pass = (String) (data.containsKey("nuevaPassword") ? data.get("nuevaPassword") : data.get("password"));
             if (pass != null && !pass.isBlank()) {
-                user.setPassword(passwordEncoder.encode(pass));
+                if (pass.trim().length() < 6) {
+                    throw new IllegalArgumentException("La nueva contraseña debe tener al menos 6 caracteres.");
+                }
+                if (data.containsKey("passwordActual")) {
+                    String actualPass = (String) data.get("passwordActual");
+                    if (actualPass != null && !actualPass.isBlank()) {
+                        if (!passwordEncoder.matches(actualPass, user.getPassword())) {
+                            throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+                        }
+                    }
+                }
+                user.setPassword(passwordEncoder.encode(pass.trim()));
             }
         }
 
