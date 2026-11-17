@@ -23,9 +23,9 @@ export default function Dashboard() {
           setMetrics(prev => ({
             ...prev,
             totalProductos: data.totalProductos ?? 248,
-            pedidosPendientes: data.pedidosPendientes ?? 32,
-            despachosEnCurso: data.despachosEnCurso ?? 12,
-            stockBajo: data.stockBajo ?? 18
+            pedidosPendientes: data.totalPedidosPendientes ?? data.pedidosPendientes ?? 0,
+            despachosEnCurso: data.totalDespachosEnCurso ?? data.despachosEnCurso ?? 0,
+            stockBajo: data.totalStockBajo ?? data.stockBajo ?? 0
           }));
         }
       } catch (err) {
