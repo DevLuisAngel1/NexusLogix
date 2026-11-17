@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -43,6 +44,30 @@ public class ProductoController {
         return ResponseEntity.ok(
                 productoService.listarProductosConStockBajo()
         );
+    }
+
+    @GetMapping("/alertas-stock/resumen")
+    public ResponseEntity<Map<String, Object>> resumenAlertasStock() {
+        List<Producto> agotados = productoService.listarProductosAgotados();
+        List<Producto> stockBajo = productoService.listarProductosEnStockBajo();
+        int activos = productoService.listarActivos().size();
+        return ResponseEntity.ok(Map.of(
+                "agotados", agotados.size(),
+                "stockBajo", stockBajo.size(),
+                "normal", Math.max(0, activos - agotados.size() - stockBajo.size()),
+                "totalProductos", activos,
+                "totalAlertas", agotados.size() + stockBajo.size()
+        ));
+    }
+
+    @GetMapping("/alertas-stock/agotados")
+    public ResponseEntity<List<Producto>> listarProductosAgotados() {
+        return ResponseEntity.ok(productoService.listarProductosAgotados());
+    }
+
+    @GetMapping("/alertas-stock/bajos")
+    public ResponseEntity<List<Producto>> listarProductosEnStockBajo() {
+        return ResponseEntity.ok(productoService.listarProductosEnStockBajo());
     }
 
     // GET /api/productos/buscar?nombre=casco
