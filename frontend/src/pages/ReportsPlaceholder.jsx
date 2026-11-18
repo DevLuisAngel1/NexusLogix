@@ -197,9 +197,39 @@ export default function ReportsPlaceholder() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F4F6F9] p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+    <div className="w-full min-h-screen bg-[#F4F6F9] p-6 lg:p-8 space-y-6 print:p-0 print:bg-white print:min-h-0">
+      <style>{`
+        @media print {
+          @page {
+            size: landscape;
+            margin: 12mm;
+          }
+          body {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+        }
+      `}</style>
+
+      {/* Header Corporativo para Impresión Formal */}
+      <div className="hidden print:block border-b-2 border-slate-900 pb-4 mb-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">NexusLogix Perú S.A.C.</h1>
+            <p className="text-xs text-slate-600">RUC: 20608945123 · Centro de Distribución y Almacén Central Lurín</p>
+            <h2 className="text-sm font-bold text-slate-800 mt-2 uppercase tracking-wide">
+              REPORTE EJECUTIVO: {activeTab === 'financiero' ? 'VENTAS Y FACTURACIÓN' : activeTab === 'inventario' ? 'VALORIZACIÓN DE EXISTENCIAS (KÁRDEX)' : 'DESPACHOS Y GUÍAS DE REMISIÓN'}
+            </h2>
+          </div>
+          <div className="text-right text-xs text-slate-600">
+            <p className="font-semibold">Fecha de Emisión: {new Date().toLocaleDateString('es-PE')}</p>
+            <p>Generado por: Auditoría del Sistema WMS</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Header Web */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs print:hidden">
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-1">
             <BarChart3 className="w-3.5 h-3.5" /> Módulo de Inteligencia Operativa
@@ -239,46 +269,42 @@ export default function ReportsPlaceholder() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Facturación Total</p>
-          <p className="text-2xl font-black text-slate-900 mt-1">{formatCurrency(totalFacturado)}</p>
-          <div className="flex items-center gap-2 mt-2 text-xs text-emerald-600 font-medium">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>IGV recaudado: {formatCurrency(totalIgv)}</span>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4 print:gap-3">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs print:p-3 print:border-slate-300">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide print:text-slate-700">Facturación Total</p>
+          <p className="text-2xl font-black text-slate-900 mt-1 print:text-xl">{formatCurrency(totalFacturado)}</p>
+          <p className="mt-2 text-xs text-emerald-600 font-medium print:text-slate-600">
+            IGV recaudado: {formatCurrency(totalIgv)}
+          </p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Valorización Inventario</p>
-          <p className="text-2xl font-black text-slate-900 mt-1">{formatCurrency(valorInventario)}</p>
-          <div className="flex items-center gap-2 mt-2 text-xs text-slate-500 font-medium">
-            <Package className="w-3.5 h-3.5 text-blue-500" />
-            <span>{productos.length} productos registrados</span>
-          </div>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs print:p-3 print:border-slate-300">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide print:text-slate-700">Valorización Inventario</p>
+          <p className="text-2xl font-black text-slate-900 mt-1 print:text-xl">{formatCurrency(valorInventario)}</p>
+          <p className="mt-2 text-xs text-slate-500 font-medium print:text-slate-600">
+            {productos.length} productos registrados
+          </p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Órdenes Comerciales</p>
-          <p className="text-2xl font-black text-slate-900 mt-1">{pedidos.length}</p>
-          <div className="flex items-center gap-2 mt-2 text-xs text-amber-600 font-medium">
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>{pedidos.filter(p => p.estado === 'PENDIENTE' || p.estado === 'EN_PREPARACION').length} en curso</span>
-          </div>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs print:p-3 print:border-slate-300">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide print:text-slate-700">Órdenes Comerciales</p>
+          <p className="text-2xl font-black text-slate-900 mt-1 print:text-xl">{pedidos.length}</p>
+          <p className="mt-2 text-xs text-amber-600 font-medium print:text-slate-600">
+            {pedidos.filter(p => p.estado === 'PENDIENTE' || p.estado === 'EN_PREPARACION').length} en curso
+          </p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Cumplimiento Logístico</p>
-          <p className="text-2xl font-black text-emerald-600 mt-1">{tasaCumplimiento}%</p>
-          <div className="flex items-center gap-2 mt-2 text-xs text-slate-500 font-medium">
-            <Truck className="w-3.5 h-3.5 text-indigo-500" />
-            <span>{despachos.filter(d => d.estado === 'ENTREGADO').length} de {despachos.length} entregados</span>
-          </div>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs print:p-3 print:border-slate-300">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide print:text-slate-700">Cumplimiento Logístico</p>
+          <p className="text-2xl font-black text-emerald-600 mt-1 print:text-xl">{tasaCumplimiento}%</p>
+          <p className="mt-2 text-xs text-slate-500 font-medium print:text-slate-600">
+            {despachos.filter(d => d.estado === 'ENTREGADO').length} de {despachos.length} entregados
+          </p>
         </div>
       </div>
 
       {/* Tabs Selector & Search */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs print:hidden">
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('financiero')}
@@ -477,6 +503,15 @@ export default function ReportsPlaceholder() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Footer Formal para Impresión */}
+      <div className="hidden print:flex justify-between items-center text-xs text-slate-600 pt-8 mt-6 border-t border-slate-300">
+        <p>Documento oficial emitido por NexusLogix WMS Enterprise · Control Interno de Almacén y Distribución.</p>
+        <div className="text-center">
+          <div className="w-56 border-t border-slate-500 mb-1"></div>
+          <p className="text-[11px] font-semibold text-slate-700">Firma de Auditoría / Gerencia de Operaciones</p>
+        </div>
       </div>
     </div>
   );
