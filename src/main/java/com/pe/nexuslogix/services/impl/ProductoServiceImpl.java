@@ -60,11 +60,19 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public List<Producto> listarProductosConStockBajo() {
+        return productoRepository.findProductosConStockBajo();
+    }
 
-        return productoRepository
-                .findByStockActualLessThanEqualAndEstadoTrue(
-                        10
-                );
+    @Override
+    @Transactional(readOnly = true)
+    public List<Producto> listarProductosAgotados() {
+        return productoRepository.findProductosAgotados();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Producto> listarProductosEnStockBajo() {
+        return productoRepository.findProductosEnStockBajo();
     }
 
     @Override
@@ -78,6 +86,13 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public Producto guardar(Producto producto) {
+
+        if (producto.getStockActual() != null && producto.getStockActual() < 0) {
+            throw new IllegalArgumentException("El stock actual no puede ser negativo");
+        }
+        if (producto.getStockMinimo() != null && producto.getStockMinimo() < 0) {
+            throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
+        }
 
         if (productoRepository.existsByCodigoSkuIgnoreCase(producto.getCodigoSku())) {
             throw new IllegalArgumentException(
@@ -128,6 +143,10 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public Producto actualizar(Long id, Producto producto) {
+
+        if (producto.getStockMinimo() != null && producto.getStockMinimo() < 0) {
+            throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
+        }
 
         Producto productoExistente = productoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(

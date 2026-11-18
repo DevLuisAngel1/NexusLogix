@@ -38,9 +38,9 @@ export const authService = {
 
   async getDashboardMetrics() {
     try {
-      const [productosRes, stockBajoRes, pedidosRes, despachosRes] = await Promise.allSettled([
+      const [productosRes, stockResumenRes, pedidosRes, despachosRes] = await Promise.allSettled([
         api.get('/productos'),
-        api.get('/productos/stock-bajo'),
+        api.get('/productos/alertas-stock/resumen'),
         api.get('/pedidos'),
         api.get('/despachos'),
       ]);
@@ -49,8 +49,8 @@ export const authService = {
         ? productosRes.value.data.length
         : 0;
 
-      const totalStockBajo = stockBajoRes.status === 'fulfilled' && Array.isArray(stockBajoRes.value.data)
-        ? stockBajoRes.value.data.length
+      const totalStockBajo = stockResumenRes.status === 'fulfilled'
+        ? Number(stockResumenRes.value.data?.stockBajo || 0)
         : 0;
 
       const pedidos = pedidosRes.status === 'fulfilled' && Array.isArray(pedidosRes.value.data)
@@ -64,7 +64,7 @@ export const authService = {
       const totalDespachosEnCurso = despachos.filter(d => d.estado === 'EN_RUTA' || d.estado === 'EN_TRANSITO').length;
 
       return {
-        totalProductos,
+        totalProductos: productosRes.status === 'fulfilled' ? totalProductos : 0,
         totalStockBajo,
         totalPedidosPendientes: totalPedidosPendientes || pedidos.length,
         totalDespachosEnCurso: totalDespachosEnCurso || despachos.length,

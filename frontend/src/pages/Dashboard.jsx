@@ -9,10 +9,10 @@ import authService from '../api/authService';
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState({
-    totalProductos: 248,
-    stockBajo: 18,
-    pedidosPendientes: 32,
-    despachosEnCurso: 12,
+    totalProductos: 0,
+    stockBajo: 0,
+    pedidosPendientes: 0,
+    despachosEnCurso: 0,
   });
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Dashboard() {
         if (data) {
           setMetrics(prev => ({
             ...prev,
-            totalProductos: data.totalProductos ?? 248,
+            totalProductos: data.totalProductos ?? 0,
             pedidosPendientes: data.totalPedidosPendientes ?? data.pedidosPendientes ?? 0,
             despachosEnCurso: data.totalDespachosEnCurso ?? data.despachosEnCurso ?? 0,
             stockBajo: data.totalStockBajo ?? data.stockBajo ?? 0
@@ -82,7 +82,7 @@ export default function Dashboard() {
             </h2>
             <div className="pt-2">
               <span className="text-[11px] font-semibold text-blue-200">
-                +12% vs. mes anterior
+                Inventario activo
               </span>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function Dashboard() {
             </h2>
             <div className="pt-2">
               <span className="text-[11px] font-semibold text-emerald-200">
-                -5% vs. mes anterior
+                Según mínimo individual
               </span>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function Dashboard() {
             </h2>
             <div className="pt-2">
               <span className="text-[11px] font-semibold text-amber-100">
-                +8% vs. mes anterior
+                Pedidos por atender
               </span>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function Dashboard() {
             </h2>
             <div className="pt-2">
               <span className="text-[11px] font-semibold text-purple-200">
-                +3% vs. mes anterior
+                En tránsito
               </span>
             </div>
           </div>
