@@ -13,6 +13,7 @@ import OrdersPlaceholder from './pages/OrdersPlaceholder';
 import DispatchPlaceholder from './pages/DispatchPlaceholder';
 import B2BPortal from './pages/B2BPortal';
 import ReportsPlaceholder from './pages/ReportsPlaceholder';
+import InventoryMovements from './pages/InventoryMovements';
 
 function DefaultRedirect() {
   const { user } = useAuth();
@@ -67,6 +68,15 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/inventario"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
+                  <InventoryMovements />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/pedidos"
@@ -98,7 +108,7 @@ export default function App() {
             <Route
               path="/reportes"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'OPERADOR']}>
                   <ReportsPlaceholder />
                 </ProtectedRoute>
               }

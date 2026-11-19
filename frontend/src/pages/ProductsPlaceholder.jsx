@@ -18,10 +18,12 @@ function apiMessage(error) {
 
 export default function ProductsPlaceholder() {
   const [products, setProducts] = useState([]);
+  const [stockSummary, setStockSummary] = useState({ agotados: 0, stockBajo: 0, normal: 0 });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
+  const [stockFilter, setStockFilter] = useState('todos');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -35,13 +37,15 @@ export default function ProductsPlaceholder() {
   const loadCatalog = useCallback(async ({ showLoading = true } = {}) => {
     if (showLoading) setLoading(true);
     try {
-      const [productResponse, categoryResponse] = await Promise.all([
+      const [productResponse, categoryResponse, summaryResponse] = await Promise.all([
         api.get('/productos/activos'),
         api.get('/categorias/activas'),
+        api.get('/productos/alertas-stock/resumen'),
       ]);
       setLoadError('');
       setProducts(Array.isArray(productResponse.data) ? productResponse.data : []);
       setCategories(Array.isArray(categoryResponse.data) ? categoryResponse.data : []);
+      setStockSummary(summaryResponse.data || { agotados: 0, stockBajo: 0, normal: 0 });
     } catch (error) {
       setLoadError(apiMessage(error));
     } finally {
@@ -53,10 +57,18 @@ export default function ProductsPlaceholder() {
 
   const visibleProducts = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
-    if (!query) return products;
-    return products.filter((product) => [product.codigoSku, product.nombre, product.categoria?.nombre]
-      .some((value) => String(value || '').toLocaleLowerCase().includes(query)));
-  }, [products, search]);
+    return products.filter((product) => {
+      const actual = Number(product.stockActual ?? 0);
+      const minimo = Number(product.stockMinimo ?? 0);
+      const matchesQuery = !query || [product.codigoSku, product.nombre, product.categoria?.nombre]
+        .some((value) => String(value || '').toLocaleLowerCase().includes(query));
+      const matchesFilter = stockFilter === 'todos'
+        || (stockFilter === 'agotado' && actual === 0)
+        || (stockFilter === 'bajo' && actual > 0 && actual <= minimo)
+        || (stockFilter === 'normal' && actual > minimo);
+      return matchesQuery && matchesFilter;
+    });
+  }, [products, search, stockFilter]);
 
   const openCreate = () => {
     setEditing(null);
@@ -145,19 +157,23 @@ export default function ProductsPlaceholder() {
       {loadError && <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><span className="flex items-center gap-2"><AlertCircle className="h-4 w-4 shrink-0" />{loadError}</span><button onClick={loadCatalog} className="inline-flex shrink-0 items-center gap-1 font-semibold"><RefreshCw className="h-3.5 w-3.5" /> Reintentar</button></div>}
       {!loading && !loadError && categories.length === 0 && <div role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">No hay categorías activas disponibles para registrar productos.</div>}
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[['agotado', 'Agotados', stockSummary.agotados, 'border-rose-200 bg-rose-50 text-rose-800'], ['bajo', 'Stock bajo', stockSummary.stockBajo, 'border-amber-200 bg-amber-50 text-amber-800'], ['normal', 'Stock normal', stockSummary.normal, 'border-emerald-200 bg-emerald-50 text-emerald-800']].map(([filter, label, count, style]) => <button key={filter} onClick={() => setStockFilter(stockFilter === filter ? 'todos' : filter)} aria-pressed={stockFilter === filter} className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${style} ${stockFilter === filter ? 'ring-2 ring-current' : ''}`}><span className="text-sm font-semibold">{label}</span><span className="mt-1 block text-2xl font-bold">{loading ? '—' : count}</span></button>)}
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div><h2 className="font-semibold text-slate-800">Catálogo de productos</h2><p className="mt-0.5 text-xs text-slate-500">{products.length} productos registrados</p></div>
-          <label className="relative block w-full sm:w-72"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar SKU, nombre o categoría" className={`${inputClass} pl-9`} /></label>
+          <div><h2 className="font-semibold text-slate-800">Catálogo de productos</h2><p className="mt-0.5 text-xs text-slate-500">{visibleProducts.length} de {products.length} productos · stock mínimo individual</p></div>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row"><select aria-label="Filtrar por estado de stock" value={stockFilter} onChange={(event) => setStockFilter(event.target.value)} className={`${inputClass} sm:w-40`}><option value="todos">Todos los estados</option><option value="agotado">Agotados</option><option value="bajo">Stock bajo</option><option value="normal">Stock normal</option></select><label className="relative block w-full sm:w-72"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar SKU, nombre o categoría" className={`${inputClass} pl-9`} /></label></div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3 font-semibold">SKU</th><th className="px-5 py-3 font-semibold">Producto</th><th className="px-5 py-3 font-semibold">Categoría</th><th className="px-5 py-3 text-right font-semibold">Precio</th><th className="px-5 py-3 text-right font-semibold">Stock actual</th><th className="px-5 py-3 text-right font-semibold">Acciones</th></tr></thead>
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3 font-semibold">SKU</th><th className="px-5 py-3 font-semibold">Producto</th><th className="px-5 py-3 font-semibold">Categoría</th><th className="px-5 py-3 text-right font-semibold">Precio</th><th className="px-5 py-3 text-right font-semibold">Stock actual / mínimo</th><th className="px-5 py-3 font-semibold">Estado</th><th className="px-5 py-3 text-right font-semibold">Acciones</th></tr></thead>
             <tbody className="divide-y divide-slate-100">
-              {loading ? <tr><td colSpan="6" className="px-5 py-14 text-center text-slate-500"><Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />Cargando catálogo…</td></tr>
-                : loadError ? <tr><td colSpan="6" className="px-5 py-12 text-center text-slate-500">No se pudo cargar el catálogo.</td></tr>
-                  : visibleProducts.length === 0 ? <tr><td colSpan="6" className="px-5 py-14 text-center text-slate-500"><Package className="mx-auto mb-2 h-6 w-6 text-slate-300" />{products.length ? 'No hay productos que coincidan con la búsqueda.' : 'Todavía no hay productos registrados.'}</td></tr>
-                    : visibleProducts.map((product) => <tr key={product.id} className="hover:bg-slate-50/70"><td className="whitespace-nowrap px-5 py-4 font-mono text-xs font-semibold text-slate-600">{product.codigoSku}</td><td className="px-5 py-4"><span className="font-medium text-slate-800">{product.nombre}</span>{product.unidadMedida && <span className="mt-0.5 block text-xs text-slate-400">Por {product.unidadMedida}</span>}</td><td className="px-5 py-4 text-slate-600">{product.categoria?.nombre || '—'}</td><td className="whitespace-nowrap px-5 py-4 text-right font-medium text-slate-700">S/ {Number(product.precioUnitario || 0).toFixed(2)}</td><td className="px-5 py-4 text-right"><span className={`inline-flex min-w-10 justify-center rounded-full px-2.5 py-1 text-xs font-semibold ${(product.stockActual ?? 0) <= (product.stockMinimo ?? 0) ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{product.stockActual ?? 0}</span></td><td className="px-5 py-4 text-right"><div className="inline-flex items-center gap-1"><button onClick={() => openEdit(product)} className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-[#1D68EC] hover:bg-blue-50"><Pencil className="h-3.5 w-3.5" />Editar</button><button onClick={() => { setDeleting(product); setDeleteError(''); }} aria-label={`Descontinuar ${product.nombre}`} title="Descontinuar producto" className="rounded-md p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button></div></td></tr>)}
+              {loading ? <tr><td colSpan="7" className="px-5 py-14 text-center text-slate-500"><Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />Cargando catálogo…</td></tr>
+                : loadError ? <tr><td colSpan="7" className="px-5 py-12 text-center text-slate-500">No se pudo cargar el catálogo.</td></tr>
+                  : visibleProducts.length === 0 ? <tr><td colSpan="7" className="px-5 py-14 text-center text-slate-500"><Package className="mx-auto mb-2 h-6 w-6 text-slate-300" />{products.length ? 'No hay productos que coincidan con los filtros.' : 'Todavía no hay productos registrados.'}</td></tr>
+                    : visibleProducts.map((product) => { const actual = Number(product.stockActual ?? 0); const minimum = Number(product.stockMinimo ?? 0); const inventoryStatus = product.estadoInventario || (actual === 0 ? 'AGOTADO' : actual <= minimum ? 'STOCK_BAJO' : 'NORMAL'); const status = inventoryStatus === 'AGOTADO' ? ['Agotado', 'bg-rose-50 text-rose-700'] : inventoryStatus === 'STOCK_BAJO' ? ['Stock bajo', 'bg-amber-50 text-amber-700'] : ['Normal', 'bg-emerald-50 text-emerald-700']; return <tr key={product.id} className="hover:bg-slate-50/70"><td className="whitespace-nowrap px-5 py-4 font-mono text-xs font-semibold text-slate-600">{product.codigoSku}</td><td className="px-5 py-4"><span className="font-medium text-slate-800">{product.nombre}</span>{product.unidadMedida && <span className="mt-0.5 block text-xs text-slate-400">Por {product.unidadMedida}</span>}</td><td className="px-5 py-4 text-slate-600">{product.categoria?.nombre || '—'}</td><td className="whitespace-nowrap px-5 py-4 text-right font-medium text-slate-700">S/ {Number(product.precioUnitario || 0).toFixed(2)}</td><td className="px-5 py-4 text-right"><span className="font-semibold text-slate-800">{actual}</span><span className="text-slate-400"> / {minimum}</span></td><td className="px-5 py-4"><span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${status[1]}`}>{status[0]}</span></td><td className="px-5 py-4 text-right"><div className="inline-flex items-center gap-1"><button onClick={() => openEdit(product)} className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-[#1D68EC] hover:bg-blue-50"><Pencil className="h-3.5 w-3.5" />Editar</button><button onClick={() => { setDeleting(product); setDeleteError(''); }} aria-label={`Descontinuar ${product.nombre}`} title="Descontinuar producto" className="rounded-md p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button></div></td></tr>; })}
             </tbody>
           </table>
         </div>
@@ -174,7 +190,7 @@ export default function ProductsPlaceholder() {
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Categoría *<select required value={form.categoriaId} onChange={(e) => setForm({ ...form, categoriaId: e.target.value })} className={inputClass}><option value="">Seleccionar categoría</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nombre}</option>)}</select></label>
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Unidad de medida *<input required maxLength="30" value={form.unidadMedida} onChange={(e) => setForm({ ...form, unidadMedida: e.target.value })} className={inputClass} placeholder="unidad, kg, caja…" /></label>
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Precio unitario (S/) *<input required type="number" min="0" step="0.01" value={form.precioUnitario} onChange={(e) => setForm({ ...form, precioUnitario: e.target.value })} className={inputClass} /></label>
-              {editing ? <div className="space-y-1.5 text-xs font-semibold text-slate-600">Stock actual<span className={`${inputClass} block bg-slate-50 text-slate-500`}>{form.stockActual} · Gestionado desde Inventario</span></div> : <label className="space-y-1.5 text-xs font-semibold text-slate-600">Stock inicial<input required type="number" min="0" step="1" value={form.stockActual} onChange={(e) => setForm({ ...form, stockActual: e.target.value })} className={inputClass} /></label>}
+              <div className="space-y-1.5 text-xs font-semibold text-slate-600">Stock actual<span className={`${inputClass} block bg-slate-50 text-slate-500`}>{editing ? `${form.stockActual} · Gestionado desde Inventario` : 'El producto se registra con stock 0; registra ingresos desde Inventario.'}</span></div>
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Stock mínimo<input type="number" min="0" step="1" value={form.stockMinimo} onChange={(e) => setForm({ ...form, stockMinimo: e.target.value })} className={inputClass} /></label>
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Peso (kg)<input type="number" min="0" step="0.001" value={form.pesokg} onChange={(e) => setForm({ ...form, pesokg: e.target.value })} className={inputClass} /></label>
               <label className="space-y-1.5 text-xs font-semibold text-slate-600">Ubicación de pasillo<input maxLength="50" value={form.ubicacionPasillo} onChange={(e) => setForm({ ...form, ubicacionPasillo: e.target.value })} className={inputClass} placeholder="Ej. A-03" /></label>

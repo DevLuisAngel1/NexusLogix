@@ -6,12 +6,18 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Producto p WHERE p.id = :id")
+    Optional<Producto> findByIdForUpdate(@Param("id") Long id);
 
     Optional<Producto> findByCodigoSkuIgnoreCase(String codigoSku);
 
@@ -26,6 +32,15 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     @Query(value = "SELECT * FROM productos WHERE stock_actual <= :stock AND (estado IS NULL OR estado != 'DISCONTINUADO')", nativeQuery = true)
     List<Producto> findByStockActualLessThanEqualAndEstadoTrue(@Param("stock") Integer stock);
+
+    @Query(value = "SELECT * FROM productos WHERE stock_actual <= stock_minimo AND (estado IS NULL OR estado != 'DISCONTINUADO') ORDER BY stock_actual ASC, nombre ASC", nativeQuery = true)
+    List<Producto> findProductosConStockBajo();
+
+    @Query(value = "SELECT * FROM productos WHERE stock_actual = 0 AND (estado IS NULL OR estado != 'DISCONTINUADO') ORDER BY nombre ASC", nativeQuery = true)
+    List<Producto> findProductosAgotados();
+
+    @Query(value = "SELECT * FROM productos WHERE stock_actual > 0 AND stock_actual <= stock_minimo AND (estado IS NULL OR estado != 'DISCONTINUADO') ORDER BY stock_actual ASC, nombre ASC", nativeQuery = true)
+    List<Producto> findProductosEnStockBajo();
 
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
 }

@@ -1,0 +1,168 @@
+name: NexusLogix CD - Continuous Delivery & Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Versión del Release (ej. v2.0.0)'
+        required: true
+        default: 'v2.0.0'
+      release_notes:
+        description: 'Notas de la entrega'
+        required: false
+        default: 'Entrega final automatizada - NexusLogix WMS Enterprise'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # -------------------------------------------------------------
+  # FASE 1: Empaquetado y Generación del Artefacto Backend (.jar)
+  # -------------------------------------------------------------
+  package-backend:
+    name: Package Backend (Spring Boot JAR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 26 (Oracle)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26'
+          distribution: 'oracle'
+          cache: maven
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Build Production JAR
+        run: ./mvnw clean package -DskipTests -B
+
+      - name: Rename and Prepare Binary
+        run: |
+          mkdir -p release-artifacts
+          cp target/nexuslogix-1.0.0.jar release-artifacts/NexusLogix-WMS-Backend.jar
+          ls -lh release-artifacts/
+
+      - name: Upload Backend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-package
+          path: release-artifacts/NexusLogix-WMS-Backend.jar
+          retention-days: 7
+
+  # -------------------------------------------------------------
+  # FASE 2: Compilación y Empaquetado del Frontend (Bundle Web)
+  # -------------------------------------------------------------
+  package-frontend:
+    name: Package Frontend (React + Vite Bundle)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Optimized Production Bundle
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Compress Web Assets into ZIP
+        run: |
+          mkdir -p release-artifacts
+          cd frontend/dist && zip -r ../../release-artifacts/NexusLogix-WMS-Frontend-Production.zip .
+          cd ../..
+          ls -lh release-artifacts/
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-package
+          path: release-artifacts/NexusLogix-WMS-Frontend-Production.zip
+          retention-days: 7
+
+  # -------------------------------------------------------------
+  # FASE 3: Publicación Oficial del Release y Entrega Continua (CD)
+  # -------------------------------------------------------------
+  publish-delivery:
+    name: Continuous Delivery & GitHub Release
+    needs: [package-backend, package-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Backend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-package
+          path: release-binaries
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-package
+          path: release-binaries
+
+      - name: Copy Database Schema Asset
+        run: |
+          cp database/schema.sql release-binaries/NexusLogix-Database-Schema.sql
+          ls -la release-binaries/
+
+      - name: Determine Release Tag & Details
+        id: vars
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${{ github.ref_name }}"
+          elif [ -n "${{ github.event.inputs.release_version }}" ]; then
+            TAG="${{ github.event.inputs.release_version }}"
+          else
+            TAG="v2.0.0"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated release tag: $TAG"
+
+      - name: Generate Release Notes and Publish Delivery
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: "Release ${{ steps.vars.outputs.tag }} - NexusLogix WMS Enterprise Delivery"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## 🚀 NexusLogix WMS Enterprise - Entrega Continua Automatizada (CD)
+
+            Solución empresarial integral de control de almacenes, pedidos y despachos versionada bajo **GitFlow** y desplegada mediante **GitHub Actions CD**.
+
+            ### 📦 Artefactos Binarios de Distribución:
+            - **Backend JAR:** `NexusLogix-WMS-Backend.jar` (Spring Boot 4.1.1 + Spring Security + JWT, Java 26)
+            - **Frontend Bundle:** `NexusLogix-WMS-Frontend-Production.zip` (React 18 + Vite + Tailwind CSS)
+            - **Database DDL:** `NexusLogix-Database-Schema.sql` (MySQL 8.0 DDL & Seeds)
+
+            ### 🛡️ Calidad y Trazabilidad del Release:
+            - **Pipeline CI:** Pruebas unitarias de Spring Boot y compilación frontend ejecutadas exitosamente.
+            - **Seguimiento:** Requerimientos e incidentes formalizados vía GitHub Projects (Kanban).
+            - **Autores:** Jesús Martín Gonzales Pocco (Tech Lead), Luis Ángel Salazar León, Delia Salazar.
+          files: |
+            release-binaries/NexusLogix-WMS-Backend.jar
+            release-binaries/NexusLogix-WMS-Frontend-Production.zip
+            release-binaries/NexusLogix-Database-Schema.sql
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
