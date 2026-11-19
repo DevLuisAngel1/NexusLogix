@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/despachos")
@@ -17,6 +18,18 @@ public class DespachoController {
 
     @Autowired
     private com.pe.nexuslogix.repositories.PedidoRepository pedidoRepository;
+
+    @GetMapping
+    public List<Despacho> listarDespachos() {
+        return despachoRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Despacho> obtenerDespachoPorId(@PathVariable Long id) {
+        return despachoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @PostMapping
     public Despacho generarDespacho(@RequestBody Despacho despacho) {

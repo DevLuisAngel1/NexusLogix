@@ -26,7 +26,7 @@ public class AuthController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         LoginResponseDTO response = authService.authenticate(request);
         if (!response.isSuccess()) {
-            if ("Credenciales inválidas.".equals(response.getMensaje())) {
+            if (response.getMensaje() != null && response.getMensaje().contains("Credenciales inválidas")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             if ("El usuario se encuentra inactivo.".equals(response.getMensaje())) {
@@ -59,5 +59,56 @@ public class AuthController {
         response.put("total", users.size());
         response.put("data", users);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, Object> userData) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserResponseDTO created = authService.createUser(userData);
+            response.put("success", true);
+            response.put("mensaje", "Usuario creado exitosamente.");
+            response.put("data", created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("mensaje", "Error interno al crear usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> userData) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserResponseDTO updated = authService.updateUser(id, userData);
+            response.put("success", true);
+            response.put("mensaje", "Usuario actualizado exitosamente.");
+            response.put("data", updated);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("mensaje", "Error interno al actualizar usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long id) {
+        Map<String, Object> result = authService.deleteUser(id);
+        boolean success = Boolean.TRUE.equals(result.get("success"));
+        if (success) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
     }
 }

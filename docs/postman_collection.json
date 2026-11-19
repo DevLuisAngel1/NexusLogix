@@ -1,0 +1,896 @@
+{
+	"info": {
+		"_postman_id": "b3815c32-2d18-4712-9c44-77e8a9140f09",
+		"name": "NexusLogix WMS - API Enterprise Collection",
+		"description": "Colección completa para pruebas de integración del backend NexusLogix WMS en Spring Boot.\n\nIncluye todos los módulos:\n1. Seguridad y Control de Acceso (Autenticación JWT, Roles, Perfil, Usuarios)\n2. Gestión de Almacén e Inventario (Categorías, Productos, Kardex de Movimientos)\n3. Pedidos y Despachos (Clientes, Pedidos con Detalle, Guías de Remisión y Entrega)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "00. Public & Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verifica el estado operativo del microservicio."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "01. Seguridad & Autenticación (Martin)",
+			"item": [
+				{
+					"name": "Login - Administrador (Guarda Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"Token JWT actualizado exitosamente:\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión como Administrador (ROLE_ADMINISTRADOR) y actualiza automáticamente la variable {{token}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Jefe de Almacén",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"almacen.lead\",\n    \"password\": \"almacen123password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autenticación para Jefe de Almacén (ROLE_JEFE_ALMACEN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Operador de Despacho",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"despacho.op\",\n    \"password\": \"despacho123password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autenticación para Operador de Despacho (ROLE_OPERADOR_DESPACHO)."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Cliente Comercial B2B",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"cliente.minero\",\n    \"password\": \"minero123password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autenticación para Cliente Comercial B2B (ROLE_CLIENTE_COMERCIAL)."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Todos los Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"users"
+							]
+						},
+						"description": "Obtiene la lista completa de usuarios del sistema (requiere JWT)."
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Perfil de Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/profile/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile",
+								"1"
+							]
+						},
+						"description": "Consulta los datos de perfil de un usuario específico."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02. Almacén e Inventario (Luis Ángel)",
+			"item": [
+				{
+					"name": "Categorías",
+					"item": [
+						{
+							"name": "Listar Todas las Categorías",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/categorias",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"categorias"
+									]
+								},
+								"description": "Retorna todas las categorías del almacén."
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Categorías Activas",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/categorias/activas",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"categorias",
+										"activas"
+									]
+								},
+								"description": "Retorna solo las categorías en estado ACTIVO."
+							},
+							"response": []
+						},
+						{
+							"name": "Buscar Categoría por ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/categorias/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"categorias",
+										"1"
+									]
+								},
+								"description": "Obtiene los detalles de una categoría por su ID."
+							},
+							"response": []
+						},
+						{
+							"name": "Crear Nueva Categoría",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Químicos y Solventes Industriales\",\n    \"descripcion\": \"Líquidos desengrasantes y solventes de mantenimiento pesado\",\n    \"estado\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/categorias",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"categorias"
+									]
+								},
+								"description": "Registra una nueva categoría en el sistema."
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar Categoría",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Seguridad Industrial y Rescate (EPP)\",\n    \"descripcion\": \"Equipos normados de protección personal y rescate (ANSI/OSHA)\",\n    \"estado\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/categorias/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"categorias",
+										"1"
+									]
+								},
+								"description": "Actualiza la información de una categoría existente."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Productos",
+					"item": [
+						{
+							"name": "Listar Todos los Productos",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos"
+									]
+								},
+								"description": "Retorna todos los productos registrados en el inventario."
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Productos Activos",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/activos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"activos"
+									]
+								},
+								"description": "Retorna únicamente los productos activos/disponibles."
+							},
+							"response": []
+						},
+						{
+							"name": "Buscar Producto por ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"1"
+									]
+								},
+								"description": "Obtiene la ficha técnica de un producto por su ID."
+							},
+							"response": []
+						},
+						{
+							"name": "Buscar Producto por SKU",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/sku/EPP-001",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"sku",
+										"EPP-001"
+									]
+								},
+								"description": "Busca un producto por su código SKU unívoco."
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Productos por Categoría",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/categoria/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"categoria",
+										"1"
+									]
+								},
+								"description": "Filtra productos pertenecientes a una categoría dada."
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Productos con Stock Bajo",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/stock-bajo",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"stock-bajo"
+									]
+								},
+								"description": "Alerta de existencias: lista productos cuyo stock actual es menor o igual al stock mínimo."
+							},
+							"response": []
+						},
+						{
+							"name": "Crear Nuevo Producto",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"codigoSku\": \"EPP-005\",\n    \"nombre\": \"Lentes de Seguridad Antiempañantes 3M\",\n    \"descripcion\": \"Gafas protectoras de policarbonato con protección UV400\",\n    \"unidadMedida\": \"UNIDAD\",\n    \"precioUnitario\": 15.50,\n    \"stockActual\": 100,\n    \"stockMinimo\": 25,\n    \"ubicacionPasillo\": \"PASILLO-A-03\",\n    \"pesokg\": 0.08,\n    \"estado\": true,\n    \"categoria\": {\n        \"id\": 1\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/productos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos"
+									]
+								},
+								"description": "Registra un nuevo producto en el catálogo del WMS."
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar Producto",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"codigoSku\": \"EPP-001\",\n    \"nombre\": \"Casco de Seguridad Industrial 3M H-700 Blanco\",\n    \"descripcion\": \"Casco dieléctrico clase E con suspensión de 4 puntos y barbiquejo\",\n    \"unidadMedida\": \"UNIDAD\",\n    \"precioUnitario\": 48.00,\n    \"stockMinimo\": 25,\n    \"ubicacionPasillo\": \"PASILLO-A-01\",\n    \"pesokg\": 0.45,\n    \"estado\": true,\n    \"categoria\": {\n        \"id\": 1\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/productos/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"productos",
+										"1"
+									]
+								},
+								"description": "Actualiza los atributos maestros de un producto existente."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Kardex & Movimientos",
+					"item": [
+						{
+							"name": "Listar Todos los Movimientos (Kardex)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/inventario/movimientos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"inventario",
+										"movimientos"
+									]
+								},
+								"description": "Lista el historial completo de transacciones del inventario."
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Movimientos por Tipo (INGRESO)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/inventario/movimientos/tipo/INGRESO",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"inventario",
+										"movimientos",
+										"tipo",
+										"INGRESO"
+									]
+								},
+								"description": "Filtra movimientos por su tipo (INGRESO, SALIDA, AJUSTE)."
+							},
+							"response": []
+						},
+						{
+							"name": "Consultar Kardex de un Producto",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/inventario/kardex/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"inventario",
+										"kardex",
+										"1"
+									]
+								},
+								"description": "Obtiene la trazabilidad de ingresos y salidas del producto ID 1."
+							},
+							"response": []
+						},
+						{
+							"name": "Registrar Movimiento de Inventario",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"productoId\": 1,\n    \"usuarioId\": 2,\n    \"tipoMovimiento\": \"INGRESO\",\n    \"cantidad\": 50,\n    \"referenciaDocumento\": \"OC-PROV-2026-099\",\n    \"motivo\": \"Reabastecimiento de stock de cascos por proveedor 3M\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/inventario/movimientos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"inventario",
+										"movimientos"
+									]
+								},
+								"description": "Registra una entrada, salida o ajuste actualizando el stock actual en tiempo real."
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "03. Pedidos & Despachos (Delia)",
+			"item": [
+				{
+					"name": "Clientes",
+					"item": [
+						{
+							"name": "Listar Todos los Clientes",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/clientes",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"clientes"
+									]
+								},
+								"description": "Retorna el directorio corporativo de clientes B2B."
+							},
+							"response": []
+						},
+						{
+							"name": "Crear Nuevo Cliente",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ruc\": \"20601234567\",\n    \"razonSocial\": \"Aceros y Estructuras del Perú S.A.C.\",\n    \"direccionFiscal\": \"Av. Argentina 2450, Callao, Lima\",\n    \"telefono\": \"01-4659821\",\n    \"contactoNombre\": \"Ing. Marcos Valdivia\",\n    \"email\": \"logistica@acerosperu.pe\",\n    \"sectorIndustrial\": \"Metalmecánica y Construcción Pesada\",\n    \"estado\": \"ACTIVO\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/clientes",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"clientes"
+									]
+								},
+								"description": "Registra una nueva cuenta corporativa de cliente."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Pedidos",
+					"item": [
+						{
+							"name": "Listar Todos los Pedidos",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/pedidos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"pedidos"
+									]
+								},
+								"description": "Obtiene la relación de pedidos de suministro registrados."
+							},
+							"response": []
+						},
+						{
+							"name": "Consultar Pedido con Detalle por ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/pedidos/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"pedidos",
+										"1"
+									]
+								},
+								"description": "Retorna la cabecera del pedido junto a la lista de ítems solicitados."
+							},
+							"response": []
+						},
+						{
+							"name": "Crear Pedido con Detalle",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"pedido\": {\n        \"codigoPedido\": \"PED-2026-0003\",\n        \"cliente\": {\n            \"id\": 1\n        },\n        \"usuario\": 1,\n        \"direccionEntrega\": \"Planta Industrial Lurín Km 38, Lima\",\n        \"fechaEntregaEstimada\": \"2026-09-20T10:00:00\",\n        \"observaciones\": \"Entrega urgente de guantes y cintas para turno noche\"\n    },\n    \"detalles\": [\n        {\n            \"producto\": 2,\n            \"cantidad\": 20,\n            \"precioUnitario\": 18.00\n        },\n        {\n            \"producto\": 3,\n            \"cantidad\": 5,\n            \"precioUnitario\": 36.00\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/pedidos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"pedidos"
+									]
+								},
+								"description": "Crea una orden de pedido calculando subtotal, IGV (18%) y total automáticamente."
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar Estado de Pedido",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"estado\": \"EN_PREPARACION\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/pedidos/1/estado",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"pedidos",
+										"1",
+										"estado"
+									]
+								},
+								"description": "Actualiza el estado de la orden (PENDIENTE, EN_PREPARACION, LISTO_DESPACHO, EN_RUTA, ENTREGADO)."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Despachos & Envíos",
+					"item": [
+						{
+							"name": "Generar Despacho y Guía de Remisión",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"pedido\": {\n        \"id\": 2\n    },\n    \"operador\": 1,\n    \"guiaRemision\": \"GR-001-0008955\",\n    \"transportistaRazonSocial\": \"Transportes Rápidos Lima Cargo S.A.C.\",\n    \"transportistaRuc\": \"20556677889\",\n    \"placaVehiculo\": \"A9B-784\",\n    \"conductorNombre\": \"Juan Carlos Quispe\",\n    \"conductorLicencia\": \"Q-12345678\",\n    \"observaciones\": \"Furgón cerrado precintado con precinto N° 5589\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/despachos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"despachos"
+									]
+								},
+								"description": "Emite la guía de remisión electrónica y pone el despacho en estado EN_RUTA."
+							},
+							"response": []
+						},
+						{
+							"name": "Consultar Despacho por Pedido ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/despachos/pedido/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"despachos",
+										"pedido",
+										"1"
+									]
+								},
+								"description": "Obtiene la guía de remisión y datos del transportista para un pedido."
+							},
+							"response": []
+						},
+						{
+							"name": "Marcar Despacho como Entregado",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"conformidadRecepcion\": \"Firma y sello de recepción conforme en almacén de obra\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/despachos/1/entregar",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"despachos",
+										"1",
+										"entregar"
+									]
+								},
+								"description": "Registra la entrega física del despacho con conformidad de recepción."
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8090",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

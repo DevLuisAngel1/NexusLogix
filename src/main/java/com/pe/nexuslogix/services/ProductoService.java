@@ -18,6 +18,10 @@ public interface ProductoService {
 
     List<Producto> listarProductosConStockBajo();
 
+    List<Producto> listarProductosAgotados();
+
+    List<Producto> listarProductosEnStockBajo();
+
     List<Producto> buscarPorNombre(String nombre);
 
     Producto guardar(Producto producto);

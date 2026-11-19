@@ -15,4 +15,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE LOWER(u.username) = LOWER(:identifier) OR LOWER(u.email) = LOWER(:identifier)")
     Optional<User> findByUsernameOrEmail(@Param("identifier") String identifier);
+
+    @Query(value = "SELECT " +
+            "(SELECT COUNT(*) FROM despachos WHERE operador_id = :userId) + " +
+            "(SELECT COUNT(*) FROM pedidos WHERE usuario_solicitante_id = :userId) + " +
+            "(SELECT COUNT(*) FROM movimientos_inventario WHERE usuario_id = :userId)",
+            nativeQuery = true)
+    Long countUserReferences(@Param("userId") Long userId);
 }

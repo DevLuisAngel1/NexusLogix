@@ -126,6 +126,12 @@ public class Producto {
     public Integer getStockMinimo() {
         return stockMinimo != null ? stockMinimo : 0;
     }
+
+    public EstadoInventario getEstadoInventario() {
+        if (getStockActual() == 0) return EstadoInventario.AGOTADO;
+        if (getStockActual() <= getStockMinimo()) return EstadoInventario.STOCK_BAJO;
+        return EstadoInventario.NORMAL;
+    }
     public void setStockMinimo(Integer stockMinimo) {
         this.stockMinimo = stockMinimo;
     }

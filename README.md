@@ -83,3 +83,21 @@ nexuslogix-wms-vcs/
         └── resources/
             └── application.properties         # Conexión JDBC a MySQL y configuración de secreto JWT
 ```
+
+---
+
+## Pipelines de Integración y Entrega Continua (CI/CD)
+
+El proyecto cuenta con integración y entrega continua automatizada en **GitHub Actions**:
+
+1. **Integración Continua (CI) — `.github/workflows/ci.yml`:**
+   - Orquestación en contenedores Ubuntu con base de datos **MySQL 8.0** de servicio.
+   - Inyección automatizada de esquema y semillas (`database/schema.sql`).
+   - Ejecución de pruebas unitarias con Maven (`mvn clean test -B`).
+   - Compilación y verificación del frontend React + Vite (`npm run build`).
+
+2. **Entrega Continua (CD) — `.github/workflows/cd.yml`:**
+   - Empaquetado automático del binario ejecutable Backend (`NexusLogix-WMS-Backend.jar`).
+   - Compilación y compresión de assets web Frontend (`NexusLogix-WMS-Frontend-Production.zip`).
+   - Publicación desatendida de **GitHub Releases** con binarios adjuntos ante merges a `main` o tags `v*`.
+   - Consulta el manual técnico completo en: [docs/CONTINUOUS_DELIVERY.md](docs/CONTINUOUS_DELIVERY.md).
