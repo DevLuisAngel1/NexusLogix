@@ -2,6 +2,10 @@ package com.pe.nexuslogix.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 import org.springframework.stereotype.Service;
 
@@ -10,6 +14,9 @@ import com.pe.nexuslogix.models.Producto;
 import com.pe.nexuslogix.models.TipoMovimiento;
 import com.pe.nexuslogix.repositories.MovimientoInventarioRepository;
 import com.pe.nexuslogix.repositories.ProductoRepository;
+import com.pe.nexuslogix.repositories.UserRepository;
+import com.pe.nexuslogix.models.User;
+import com.pe.nexuslogix.dto.MovimientoInventarioResponse;
 import com.pe.nexuslogix.services.InventarioService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +27,16 @@ public class InventarioServiceImpl implements InventarioService {
 
     private final ProductoRepository productoRepository;
     private final MovimientoInventarioRepository movimientoRepository;
+    private final UserRepository userRepository;
 
     public InventarioServiceImpl(
             ProductoRepository productoRepository,
-            MovimientoInventarioRepository movimientoRepository
+            MovimientoInventarioRepository movimientoRepository,
+            UserRepository userRepository
     ) {
         this.productoRepository = productoRepository;
         this.movimientoRepository = movimientoRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -55,7 +65,10 @@ public class InventarioServiceImpl implements InventarioService {
         }
 
         // 3. Buscar producto
-        Producto producto = productoRepository.findById(productoId)
+        if (productoId == null) {
+            throw new IllegalArgumentException("El producto es obligatorio");
+        }
+        Producto producto = productoRepository.findByIdForUpdate(productoId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No existe el producto con ID: " + productoId
                 ));
@@ -178,6 +191,30 @@ public class InventarioServiceImpl implements InventarioService {
 
         return movimientoRepository
                 .findByTipoMovimiento(tipoMovimiento);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MovimientoInventarioResponse> buscarKardex(Long productoId, TipoMovimiento tipo,
+            Long usuarioId, LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("La fecha inicial no puede ser posterior a la fecha final");
+        }
+        LocalDateTime inicio = desde == null ? null : desde.atStartOfDay();
+        LocalDateTime fin = hasta == null ? null : hasta.plusDays(1).atStartOfDay().minusNanos(1);
+        List<MovimientoInventario> movimientos = movimientoRepository.buscarKardex(productoId, tipo, usuarioId, inicio, fin);
+        List<Long> ids = movimientos.stream().map(MovimientoInventario::getUsuarioId).distinct().toList();
+        Map<Long, User> usuarios = userRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+        return movimientos.stream().map(m -> {
+            User usuario = usuarios.get(m.getUsuarioId());
+            String responsable = usuario == null ? "Usuario #" + m.getUsuarioId()
+                    : (usuario.getNombre() + " " + usuario.getApellido()).trim();
+            return new MovimientoInventarioResponse(m.getId(), m.getProducto().getId(),
+                    m.getProducto().getNombre(), m.getProducto().getCodigoSku(), m.getTipoMovimiento(),
+                    m.getCantidad(), m.getStockAnterior(), m.getStockPosterior(), m.getReferenciaDocumento(),
+                    m.getMotivo(), m.getUsuarioId(), responsable, m.getFecha());
+        }).toList();
     }
 
     private void validarProducto(Long productoId) {
