@@ -2,6 +2,10 @@ package com.pe.nexuslogix;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.pe.nexuslogix.dto.LoginRequestDTO;
 import com.pe.nexuslogix.dto.LoginResponseDTO;
@@ -10,13 +14,23 @@ import com.pe.nexuslogix.services.AuthService;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 class NexuslogixApplicationTests {
 
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private MockMvc mockMvc;
+
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void kardexRequiereAutenticacion() throws Exception {
+        mockMvc.perform(get("/api/inventario/kardex"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
